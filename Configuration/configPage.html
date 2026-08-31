@@ -1,0 +1,442 @@
+<div id="AdventCalendarConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <div data-role="content">
+        <div class="content-primary">
+            <form class="adventCalendarConfigForm">
+                <div class="verticalSection verticalSection-extrabottompadding">
+                    <h2>Advent Calendar</h2>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtPageTitle">Page title</label>
+                        <input id="txtPageTitle" is="emby-input" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtLanguage">Language</label>
+                        <input id="txtLanguage" is="emby-input" placeholder="da-DK" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtSeriesSearch">Series</label>
+                        <input id="txtSeriesSearch" is="emby-input" list="seriesSuggestions" placeholder="Start typing a Jellyfin series name" autocomplete="off" />
+                        <datalist id="seriesSuggestions"></datalist>
+                        <div class="fieldDescription">Pick a series from the suggestions or type the exact Jellyfin series name.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtSeasonNumbers">Season numbers</label>
+                        <input id="txtSeasonNumbers" is="emby-input" placeholder="1 or 1,2" />
+                        <div class="fieldDescription">Optional. Leave blank to use season 1. Multiple seasons continue the calendar in order, so door 13 can become season 2 episode 1.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtDoorCount">Doors</label>
+                        <input id="txtDoorCount" is="emby-input" type="number" min="1" max="31" />
+                    </div>
+                    <div id="seriesSelectionStatus" class="fieldDescription"></div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtMissingEpisodeMessage">Custom missing episode message</label>
+                        <input id="txtMissingEpisodeMessage" is="emby-input" placeholder="Episode {door} is not available yet." />
+                        <div class="fieldDescription">Optional. Leave empty to disable missing doors. If set, missing doors will show this message globally. You can use <code>{door}</code> or <code>{doorNumber}</code>.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtAllowedUsers">Allowed users</label>
+                        <input id="txtAllowedUsers" is="emby-input" placeholder="alice,bob,charlie" />
+                        <div class="fieldDescription">Comma-separated usernames. Leave empty to allow every signed-in user.</div>
+                    </div>
+                    <label class="checkboxContainer">
+                        <input id="chkAutoFullscreen" is="emby-checkbox" type="checkbox" />
+                        <span>Try to launch playback in fullscreen</span>
+                    </label>
+                    <label class="checkboxContainer">
+                        <input id="chkDebugUnlockAllDoors" is="emby-checkbox" type="checkbox" />
+                        <span>Debug mode: unlock all doors</span>
+                    </label>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button id="btnOpenCalendar" is="emby-button" type="button" class="block">
+                            <span>Open advent calendar page</span>
+                        </button>
+                        <div class="fieldDescription">Quick access to the public calendar page.</div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button id="btnResetDoors" is="emby-button" type="button" class="block">
+                            <span>Close all opened doors</span>
+                        </button>
+                        <div class="fieldDescription">Resets the remembered opened state for the current year for all users.</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+        (function () {
+            const page = document.getElementById('AdventCalendarConfigPage');
+            const pluginId = '7b2df585-1880-4d0a-b9ee-d7760cc3f0af';
+            const seriesSearchInput = page.querySelector('#txtSeriesSearch');
+            const seriesSuggestions = page.querySelector('#seriesSuggestions');
+            const seriesSelectionStatus = page.querySelector('#seriesSelectionStatus');
+            const seasonNumbersInput = page.querySelector('#txtSeasonNumbers');
+            let selectedSeries = null;
+            let searchTimer = 0;
+
+            function getToken() {
+                if (ApiClient && typeof ApiClient.accessToken === 'function') {
+                    return ApiClient.accessToken();
+                }
+
+                return '';
+            }
+
+            function getPluginId() {
+                if (pluginId) {
+                    return pluginId;
+                }
+
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id')
+                    || params.get('pluginId')
+                    || params.get('PluginId')
+                    || '';
+            }
+
+            function buildServerUrl(path) {
+                if (ApiClient && typeof ApiClient.getUrl === 'function') {
+                    return ApiClient.getUrl(path.replace(/^\/+/, ''));
+                }
+
+                const base = (ApiClient && typeof ApiClient.serverAddress === 'function')
+                    ? ApiClient.serverAddress().replace(/\/+$/, '')
+                    : window.location.origin;
+
+                return base + path;
+            }
+
+            function openCalendarPage() {
+                const url = buildServerUrl('/adventcalendar');
+                window.open(url, '_blank', 'noopener');
+            }
+
+            function extractId(value) {
+                if (!value) {
+                    return '';
+                }
+
+                const trimmed = value.trim();
+                const direct = trimmed.match(/[0-9a-fA-F]{32}|[0-9a-fA-F-]{36}/);
+                return direct ? direct[0] : trimmed;
+            }
+
+            function getConfigValue(config, camelName, pascalName, fallbackValue) {
+                if (config[camelName] !== undefined) {
+                    return config[camelName];
+                }
+
+                if (config[pascalName] !== undefined) {
+                    return config[pascalName];
+                }
+
+                return fallbackValue;
+            }
+
+            async function fetchJson(url) {
+                const response = await fetch(buildServerUrl(url), {
+                    headers: {
+                        'X-Emby-Token': getToken()
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('The request failed.');
+                }
+
+                return response.json();
+            }
+
+            async function postJson(url) {
+                const response = await fetch(buildServerUrl(url), {
+                    method: 'POST',
+                    headers: {
+                        'X-Emby-Token': getToken()
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('The reset request failed.');
+                }
+
+                return response.json();
+            }
+
+            function setSeriesStatus(text) {
+                seriesSelectionStatus.textContent = text || '';
+            }
+
+            function renderSeriesSuggestions(items) {
+                seriesSuggestions.innerHTML = '';
+                items.forEach(function (item) {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.dataset.id = item.id;
+                    option.label = item.productionYear ? (item.name + ' (' + item.productionYear + ')') : item.name;
+                    seriesSuggestions.appendChild(option);
+                });
+            }
+
+            async function searchSeries(query) {
+                const items = await fetchJson('/adventcalendar/admin/series?query=' + encodeURIComponent(query || ''));
+                renderSeriesSuggestions(items);
+                return items;
+            }
+
+            function normalizeSeasonNumbers(value) {
+                const parts = String(value || '')
+                    .split(',')
+                    .map(function (part) { return part.trim(); })
+                    .filter(Boolean);
+
+                if (!parts.length) {
+                    return ['1'];
+                }
+
+                const numbers = [];
+                parts.forEach(function (part) {
+                    const parsed = Number(part);
+                    if (Number.isInteger(parsed) && parsed > 0 && numbers.indexOf(String(parsed)) === -1) {
+                        numbers.push(String(parsed));
+                    }
+                });
+
+                if (!numbers.length) {
+                    throw new Error('Season numbers must be positive whole numbers, for example 1 or 1,2.');
+                }
+
+                return numbers;
+            }
+
+            async function resolveSeriesSelection() {
+                const typedName = seriesSearchInput.value.trim();
+                if (!typedName) {
+                    throw new Error('Select a Jellyfin series before saving.');
+                }
+
+                if (selectedSeries && selectedSeries.name.toLowerCase() === typedName.toLowerCase()) {
+                    return selectedSeries;
+                }
+
+                const datalistMatch = Array.from(seriesSuggestions.options).find(function (option) {
+                    return option.value.toLowerCase() === typedName.toLowerCase() && option.dataset.id;
+                });
+
+                if (datalistMatch) {
+                    selectedSeries = {
+                        id: datalistMatch.dataset.id,
+                        name: datalistMatch.value
+                    };
+                    return selectedSeries;
+                }
+
+                const matches = await searchSeries(typedName);
+                const exactMatch = matches.find(function (item) {
+                    return item.name.toLowerCase() === typedName.toLowerCase();
+                });
+
+                if (!exactMatch) {
+                    throw new Error('No Jellyfin series matched that name exactly. Pick one from the suggestions.');
+                }
+
+                selectedSeries = exactMatch;
+                return selectedSeries;
+            }
+
+            async function validateSeriesAndSeasons() {
+                const series = await resolveSeriesSelection();
+                const requestedSeasonNumbers = normalizeSeasonNumbers(seasonNumbersInput.value);
+                const seasons = await fetchJson('/adventcalendar/admin/series/' + encodeURIComponent(series.id) + '/seasons');
+                const availableNumbers = seasons.map(function (season) {
+                    return String(season.number);
+                });
+                const missingNumbers = requestedSeasonNumbers.filter(function (number) {
+                    return availableNumbers.indexOf(number) === -1;
+                });
+
+                if (missingNumbers.length) {
+                    throw new Error('The selected series is missing season ' + missingNumbers.join(', ') + '.');
+                }
+
+                const firstSeason = seasons.find(function (season) {
+                    return String(season.number) === requestedSeasonNumbers[0];
+                });
+
+                setSeriesStatus(series.name + ' · ' + (requestedSeasonNumbers.length === 1
+                    ? ('Season ' + requestedSeasonNumbers[0])
+                    : ('Seasons ' + requestedSeasonNumbers.join(', '))));
+
+                return {
+                    seriesId: series.id,
+                    seriesName: series.name,
+                    seasonNumbers: requestedSeasonNumbers.join(','),
+                    legacySeasonId: firstSeason ? firstSeason.id : ''
+                };
+            }
+
+            async function loadSeriesFromConfig(config) {
+                const storedSeriesId = getConfigValue(config, 'seriesId', 'SeriesId', '');
+                const storedSeriesName = getConfigValue(config, 'seriesName', 'SeriesName', '');
+                const storedSeasonNumbers = getConfigValue(config, 'seasonNumbers', 'SeasonNumbers', '');
+                const legacySeasonId = getConfigValue(config, 'seasonId', 'SeasonId', '');
+
+                seasonNumbersInput.value = storedSeasonNumbers || '1';
+                selectedSeries = null;
+
+                if (storedSeriesId) {
+                    try {
+                        const series = await fetchJson('/adventcalendar/admin/series/' + encodeURIComponent(storedSeriesId));
+                        selectedSeries = series;
+                        seriesSearchInput.value = series.name;
+                        setSeriesStatus(series.name + ' · ' + ((storedSeasonNumbers || '1').indexOf(',') === -1
+                            ? ('Season ' + (storedSeasonNumbers || '1'))
+                            : ('Seasons ' + (storedSeasonNumbers || '1'))));
+                        return;
+                    } catch (error) {
+                    }
+                }
+
+                if (storedSeriesName) {
+                    seriesSearchInput.value = storedSeriesName;
+                    setSeriesStatus(storedSeriesName);
+                    return;
+                }
+
+                if (legacySeasonId) {
+                    seriesSearchInput.value = '';
+                    setSeriesStatus('Legacy configuration detected. Re-save once after selecting the series.');
+                    return;
+                }
+
+                seriesSearchInput.value = '';
+                setSeriesStatus('');
+            }
+
+            async function loadPage() {
+                const activePluginId = getPluginId();
+                if (!activePluginId) {
+                    throw new Error('Could not determine the Advent Calendar plugin id.');
+                }
+
+                const config = await ApiClient.getPluginConfiguration(activePluginId);
+
+                page.querySelector('#txtPageTitle').value = getConfigValue(config, 'pageTitle', 'PageTitle', '');
+                page.querySelector('#txtLanguage').value = getConfigValue(config, 'language', 'Language', 'da-DK');
+                page.querySelector('#txtDoorCount').value = getConfigValue(config, 'doorCount', 'DoorCount', 24);
+                page.querySelector('#txtMissingEpisodeMessage').value = getConfigValue(config, 'missingEpisodeMessage', 'MissingEpisodeMessage', '');
+                page.querySelector('#txtAllowedUsers').value = getConfigValue(config, 'allowedUsernames', 'AllowedUsernames', '');
+                page.querySelector('#chkAutoFullscreen').checked = getConfigValue(config, 'autoFullscreen', 'AutoFullscreen', true) !== false;
+                page.querySelector('#chkDebugUnlockAllDoors').checked = getConfigValue(config, 'debugUnlockAllDoors', 'DebugUnlockAllDoors', false) === true;
+
+                await loadSeriesFromConfig(config);
+                await searchSeries(seriesSearchInput.value.trim());
+            }
+
+            page.addEventListener('pageshow', function () {
+                loadPage();
+            });
+
+            seriesSearchInput.addEventListener('input', function () {
+                selectedSeries = null;
+                setSeriesStatus('');
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(function () {
+                    searchSeries(seriesSearchInput.value.trim()).catch(function () {});
+                }, 200);
+            });
+
+            seriesSearchInput.addEventListener('change', function () {
+                const datalistMatch = Array.from(seriesSuggestions.options).find(function (option) {
+                    return option.value.toLowerCase() === seriesSearchInput.value.trim().toLowerCase();
+                });
+
+                if (datalistMatch && datalistMatch.dataset.id) {
+                    selectedSeries = {
+                        id: datalistMatch.dataset.id,
+                        name: datalistMatch.value
+                    };
+                    setSeriesStatus(datalistMatch.value);
+                }
+            });
+
+            page.querySelector('.adventCalendarConfigForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const activePluginId = getPluginId();
+                if (!activePluginId) {
+                    Dashboard.alert({
+                        title: 'Advent Calendar',
+                        message: 'Could not determine the Advent Calendar plugin id.'
+                    });
+                    return;
+                }
+
+                try {
+                    const validated = await validateSeriesAndSeasons();
+                    const config = await ApiClient.getPluginConfiguration(activePluginId);
+
+                    config.PageTitle = page.querySelector('#txtPageTitle').value;
+                    config.Language = page.querySelector('#txtLanguage').value;
+                    config.SeriesId = extractId(validated.seriesId);
+                    config.SeriesName = validated.seriesName;
+                    config.SeasonNumbers = validated.seasonNumbers;
+                    config.SeasonId = extractId(validated.legacySeasonId);
+                    config.DoorCount = Number(page.querySelector('#txtDoorCount').value || 24);
+                    config.MissingEpisodeMessage = page.querySelector('#txtMissingEpisodeMessage').value;
+                    config.AllowedUsernames = page.querySelector('#txtAllowedUsers').value;
+                    config.MissingEpisodeBehavior = page.querySelector('#txtMissingEpisodeMessage').value.trim() ? 3 : 0;
+                    config.AutoFullscreen = page.querySelector('#chkAutoFullscreen').checked;
+                    config.DebugUnlockAllDoors = page.querySelector('#chkDebugUnlockAllDoors').checked;
+
+                    await ApiClient.updatePluginConfiguration(activePluginId, config);
+                    Dashboard.processPluginConfigurationUpdateResult();
+                } catch (error) {
+                    Dashboard.alert({
+                        title: 'Advent Calendar',
+                        message: error.message || 'The configuration could not be saved.'
+                    });
+                }
+            });
+
+            page.querySelector('#btnOpenCalendar').addEventListener('click', function () {
+                openCalendarPage();
+            });
+
+            page.querySelector('#btnResetDoors').addEventListener('click', async function () {
+                const button = page.querySelector('#btnResetDoors');
+                if (!window.confirm('Close all remembered opened doors for the current year?')) {
+                    return;
+                }
+
+                const typed = window.prompt('Type CLOSE to confirm resetting all opened doors.', '');
+                if (typed !== 'CLOSE') {
+                    Dashboard.alert({
+                        title: 'Advent Calendar',
+                        message: 'Opened doors were not reset.'
+                    });
+                    return;
+                }
+
+                try {
+                    button.disabled = true;
+                    await postJson('/adventcalendar/admin/reset');
+                    Dashboard.alert({
+                        title: 'Advent Calendar',
+                        message: 'All remembered opened doors have been closed.'
+                    });
+                } catch (error) {
+                    Dashboard.alert({
+                        title: 'Advent Calendar',
+                        message: error.message || 'The opened doors could not be reset.'
+                    });
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        })();
+    </script>
+</div>

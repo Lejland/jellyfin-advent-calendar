@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Jellyfin.Plugin.AdventCalendar</RootNamespace>
+    <AssemblyName>Jellyfin.Plugin.AdventCalendar</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>1.1.1.0</Version>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jellyfin.Controller" Version="10.11.0">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Jellyfin.Model" Version="10.11.0">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration/configPage.html" />
+    <EmbeddedResource Include="Web/adventcalendar.html" />
+    <EmbeddedResource Include="Web/adventcalendar.css" />
+    <EmbeddedResource Include="Web/adventcalendar.js" />
+  </ItemGroup>
+</Project>

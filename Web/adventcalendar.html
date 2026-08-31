@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Advent Calendar</title>
+    <base href="__ADVENT_BASE_PATH__/" />
+    <link rel="stylesheet" href="assets/adventcalendar.css" />
+</head>
+<body>
+    <div class="page-shell">
+        <main class="calendar-layout">
+            <header class="calendar-hero">
+                <p id="calendarEyebrow" class="calendar-eyebrow">Advent Calendar</p>
+                <h1 id="calendarTitle" class="calendar-title">Advent Calendar</h1>
+                <p id="calendarSeries" class="calendar-series"></p>
+            </header>
+            <section id="calendarNotice" class="calendar-notice is-hidden" aria-live="polite">
+                <h2 id="calendarNoticeTitle" class="calendar-notice__title">Sign in required</h2>
+                <p id="calendarNoticeMessage" class="calendar-notice__message">Checking your Jellyfin session.</p>
+            </section>
+            <p id="calendarMessage" class="status-message is-hidden">Checking your Jellyfin session and calendar settings.</p>
+            <section id="doors" class="doors" aria-live="polite"></section>
+        </main>
+    </div>
+    <div id="playerOverlay" class="player-overlay is-hidden">
+        <button id="closePlayer" class="player-overlay__close" type="button">Close</button>
+        <video id="calendarPlayer" class="player-overlay__video" controls playsinline></video>
+    </div>
+    <template id="doorTemplate">
+        <button class="door" type="button">
+            <span class="door__day"></span>
+            <span class="door__opened">
+                <span class="door__opened-title"></span>
+                <span class="door__opened-meta"></span>
+            </span>
+            <span class="door__meta"></span>
+        </button>
+    </template>
+    <script src="assets/adventcalendar.js"></script>
+</body>
+</html>

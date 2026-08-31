@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "7b2df585-1880-4d0a-b9ee-d7760cc3f0af",
+    "name": "Advent Calendar",
+    "description": "Turns a Jellyfin season into a custom advent calendar page with remembered opened doors and themed artwork.",
+    "overview": "Unofficial Jellyfin Advent Calendar plugin.",
+    "owner": "Lejland",
+    "category": "General",
+    "imageUrl": "",
+    "versions": [
+      {
+        "version": "1.1.1.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.1.1.0/jellyfin-plugin-advent-calendar_1.1.1.0.zip",
+        "checksum": "c8dee367c111dfd741595c44cd31bcd9",
+        "timestamp": "2026-08-26T20:13:00Z"
+      }
+    ]
+  }
+]

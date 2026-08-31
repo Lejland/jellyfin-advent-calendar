@@ -1,0 +1,308 @@
+:root {
+    --tile-red: rgba(198, 49, 48, 0.92);
+    --tile-red-deep: rgba(150, 31, 33, 0.94);
+    --tile-open-border: rgba(255, 244, 214, 0.62);
+    --tile-shadow: 0 16px 40px rgba(0, 0, 0, 0.26);
+    --page-copy: #fff8eb;
+    --page-muted: rgba(255, 248, 235, 0.82);
+    --panel-bg: rgba(8, 12, 18, 0.56);
+    --panel-border: rgba(255, 248, 235, 0.16);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--page-copy);
+    background-color: #09111a;
+    background-image:
+        linear-gradient(180deg, rgba(5, 10, 16, 0.34), rgba(5, 10, 16, 0.9)),
+        radial-gradient(circle at top, rgba(228, 158, 84, 0.18), transparent 32%);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+
+.page-shell {
+    min-height: 100vh;
+    padding: 1rem;
+    display: grid;
+}
+
+.calendar-layout {
+    width: min(100%, 1120px);
+    margin: auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.calendar-hero {
+    width: min(100%, 44rem);
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    text-wrap: balance;
+}
+
+.calendar-eyebrow,
+.calendar-series,
+.calendar-title {
+    margin: 0;
+}
+
+.calendar-eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--page-muted);
+}
+
+.calendar-title {
+    margin-top: 0.35rem;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    line-height: 0.96;
+}
+
+.calendar-series {
+    margin-top: 0.45rem;
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    color: var(--page-muted);
+}
+
+.calendar-notice {
+    width: min(100%, 40rem);
+    padding: 1.2rem 1.1rem;
+    border: 1px solid var(--panel-border);
+    background: rgba(8, 12, 18, 0.72);
+    backdrop-filter: blur(10px);
+}
+
+.calendar-notice__title,
+.calendar-notice__message {
+    margin: 0;
+}
+
+.calendar-notice__title {
+    font-size: 1.2rem;
+}
+
+.calendar-notice__message {
+    margin-top: 0.55rem;
+    color: var(--page-muted);
+    line-height: 1.5;
+}
+
+.doors {
+    display: grid;
+    grid-template-columns: repeat(var(--door-columns, 8), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--door-rows, 6), minmax(0, 1fr));
+    gap: 0.75rem;
+    width: min(100%, 1120px);
+    height: var(--door-height, min(76vh, 760px));
+    margin: 0 auto;
+}
+
+.door {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 112px;
+    padding: 0.8rem;
+    border: 0;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+        linear-gradient(180deg, var(--tile-red), var(--tile-red-deep));
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: var(--tile-shadow);
+    overflow: hidden;
+    transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+}
+
+.door.is-closed {
+    border: 1px solid rgba(255, 248, 235, 0.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset -10px 0 18px rgba(0, 0, 0, 0.18),
+        var(--tile-shadow);
+}
+
+.door::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 42%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.door.is-closed::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(10, 12, 16, 0.08), rgba(10, 12, 16, 0.32)),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 38%);
+    pointer-events: none;
+}
+
+.door:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.door:disabled {
+    cursor: wait;
+}
+
+.door__day {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.door__meta,
+.door__opened {
+    position: absolute;
+    z-index: 1;
+    left: 0.85rem;
+    right: 0.85rem;
+}
+
+.door__meta {
+    bottom: 0.7rem;
+    font-size: 0.88rem;
+    color: rgba(255, 248, 235, 0.86);
+    min-height: 1em;
+}
+
+.door__opened {
+    display: none;
+    bottom: 0.75rem;
+    text-align: left;
+}
+
+.door__opened-title,
+.door__opened-meta {
+    display: block;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.door__opened-title {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.door__opened-meta {
+    margin-top: 0.3rem;
+    font-size: 0.84rem;
+    color: rgba(255, 248, 235, 0.92);
+}
+
+.door.is-locked {
+    filter: saturate(0.72) brightness(0.84);
+    opacity: 0.76;
+    cursor: default;
+}
+
+.door.is-missing {
+    background: linear-gradient(180deg, rgba(87, 37, 37, 0.95), rgba(55, 21, 21, 0.95));
+}
+
+.door.is-opened {
+    align-items: flex-end;
+    justify-content: flex-start;
+    background-color: #151515;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px solid var(--tile-open-border);
+}
+
+.door.is-opened::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8, 12, 18, 0.1), rgba(8, 12, 18, 0.74));
+}
+
+.door.is-opened .door__day {
+    display: none;
+}
+
+.door.is-opened .door__opened {
+    display: block;
+}
+
+.is-hidden {
+    display: none;
+}
+
+.status-message {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    z-index: 5;
+    transform: translateX(-50%);
+    max-width: min(90vw, 40rem);
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 248, 235, 0.24);
+    background: rgba(8, 12, 18, 0.78);
+    color: var(--page-muted);
+    text-align: center;
+    backdrop-filter: blur(8px);
+}
+
+.player-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.player-overlay.is-hidden {
+    display: none;
+}
+
+.player-overlay__video {
+    width: min(96vw, 1200px);
+    max-height: 88vh;
+    background: black;
+}
+
+.player-overlay__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+@media (max-width: 620px) {
+    .page-shell {
+        padding: 0.75rem;
+    }
+
+    .calendar-layout {
+        gap: 0.75rem;
+    }
+
+    .calendar-hero,
+    .calendar-notice {
+        padding: 0.9rem;
+    }
+
+    .doors {
+        gap: 0.55rem;
+    }
+}
