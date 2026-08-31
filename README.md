@@ -2,6 +2,11 @@
 
 An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turns a TV series into a December advent calendar.
 
+## Project Note
+
+This plugin was created 100% with AI.
+
+
 ## What It Does
 
 - Adds a public page at `/adventcalendar`
@@ -16,7 +21,7 @@ An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turn
 
 ## Current Status
 
-- Current release: `1.1.1.0`
+- Current release: `1.1.2.0`
 - Tested against Jellyfin `10.11.11`
 
 
@@ -67,6 +72,14 @@ Notes:
 - If `Custom missing episode message` is empty, missing doors are disabled
 - If `Custom missing episode message` has a value, that message is shown on missing doors
 - Supported placeholders are `{door}` and `{doorNumber}`
+
+## Planned Feature
+
+A future release is planned to let administrators choose the date when door 1 becomes available. The default will remain December 1.
+
+## Updating The Project
+
+See [the release update guide](docs/UPDATING_RELEASES.md) for the complete build, packaging, GitHub release, and Jellyfin update workflow.
 
 ## Project Layout
 
