@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2.0 - 2026-08-31
+
+Changed in this release:
+
+- admin Save button remains the Jellyfin primary blue action
+- Open advent calendar page button is now green
+- Close all opened doors button is now red
+
+
 ## 1.1.1.0 - 2026-08-26
 
 Added in this release:

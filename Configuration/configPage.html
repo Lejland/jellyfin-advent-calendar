@@ -1,4 +1,23 @@
 <div id="AdventCalendarConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <style>
+        #AdventCalendarConfigPage .advent-button-open {
+            background-color: #248a3d;
+            color: #fff;
+        }
+
+        #AdventCalendarConfigPage .advent-button-open:hover {
+            background-color: #1d6f31;
+        }
+
+        #AdventCalendarConfigPage .advent-button-reset {
+            background-color: #c62828;
+            color: #fff;
+        }
+
+        #AdventCalendarConfigPage .advent-button-reset:hover {
+            background-color: #a61f1f;
+        }
+    </style>
     <div data-role="content">
         <div class="content-primary">
             <form class="adventCalendarConfigForm">
@@ -52,13 +71,13 @@
                         </button>
                     </div>
                     <div style="margin-top: 1rem;">
-                        <button id="btnOpenCalendar" is="emby-button" type="button" class="block">
+                        <button id="btnOpenCalendar" is="emby-button" type="button" class="raised block advent-button-open">
                             <span>Open advent calendar page</span>
                         </button>
                         <div class="fieldDescription">Quick access to the public calendar page.</div>
                     </div>
                     <div style="margin-top: 1rem;">
-                        <button id="btnResetDoors" is="emby-button" type="button" class="block">
+                        <button id="btnResetDoors" is="emby-button" type="button" class="raised block advent-button-reset">
                             <span>Close all opened doors</span>
                         </button>
                         <div class="fieldDescription">Resets the remembered opened state for the current year for all users.</div>

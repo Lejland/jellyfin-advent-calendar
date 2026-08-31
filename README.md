@@ -106,7 +106,7 @@ Output:
 
 Release zip currently created:
 
-- `artifacts/release/jellyfin-plugin-advent-calendar_1.1.1.0.zip`
+- `artifacts/release/jellyfin-plugin-advent-calendar_1.1.2.0.zip`
 
 ## Install And Updates
 
