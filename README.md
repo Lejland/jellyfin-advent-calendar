@@ -108,55 +108,21 @@ Release zip currently created:
 
 - `artifacts/release/jellyfin-plugin-advent-calendar_1.1.1.0.zip`
 
-## Deploy
+## Install And Updates
 
-Manual deploy flow used successfully on Wednesday, August 26, 2026:
+Install through Jellyfin instead of copying plugin files manually:
 
-1. Build the plugin
-2. Copy these files to the Jellyfin plugin folder:
-   - `Jellyfin.Plugin.AdventCalendar.dll`
-   - `Jellyfin.Plugin.AdventCalendar.deps.json`
-3. Server plugin path used:
-   - `/var/lib/jellyfin/plugins/AdventCalendar/`
-4. Fix ownership:
-   - `chown jellyfin:jellyfin ...`
-5. Restart Jellyfin:
-   - `systemctl restart jellyfin`
+1. Open **Dashboard**, then **Plugins**, then **Repositories**.
+2. Add this repository URL:
 
-Useful deployment commands:
-
-```bash
-scp bin/Release/net9.0/Jellyfin.Plugin.AdventCalendar.dll \
-    bin/Release/net9.0/Jellyfin.Plugin.AdventCalendar.deps.json \
-    root@10.45.8.164:/var/lib/jellyfin/plugins/AdventCalendar/
+```text
+https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/artifacts/repository/manifest.json
 ```
 
-```bash
-ssh root@10.45.8.164 \
-  'chown jellyfin:jellyfin /var/lib/jellyfin/plugins/AdventCalendar/Jellyfin.Plugin.AdventCalendar.dll /var/lib/jellyfin/plugins/AdventCalendar/Jellyfin.Plugin.AdventCalendar.deps.json && systemctl restart jellyfin'
-```
+3. Open the plugin catalog, install **Advent Calendar**, then restart Jellyfin if requested.
 
-## Known Quirk
+When a new release is published, Jellyfin will show it under plugin updates. Install the update and restart Jellyfin if requested.
 
-Jellyfin logs still show:
+## License
 
-- `Loaded plugin: Advent Calendar 1.0.0.0`
-
-But the server also logs the real loaded assembly version:
-
-- `Loaded assembly Jellyfin.Plugin.AdventCalendar, Version=1.1.1.0`
-
-This is because the server-side `meta.json` still has `version: 1.0.0.0`. The running DLL is the newer one.
-
-## Files Worth Backing Up
-
-- `PluginConfiguration.xml` on the Jellyfin server
-- The whole project folder
-- Current local backup:
-  `project-saves/jellyfin-advent-calendar_2026-08-26_16-40-29_missing-episode-fix.zip`
-
-## Next Likely Work
-
-- Clean up plugin metadata so Jellyfin displays `1.1.1.0`
-- Update server-side `meta.json` when deploying if Jellyfin still displays an older plugin version label
-- Improve release packaging and admin documentation further if publishing publicly
+This project is licensed under the [MIT License](LICENSE).
