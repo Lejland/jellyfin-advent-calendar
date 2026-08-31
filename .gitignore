@@ -1,0 +1,8 @@
+bin/
+obj/
+artifacts/publish/
+artifacts/tmp-*/
+artifacts/release/*.zip
+project-saves/
+*.user
+*.suo
