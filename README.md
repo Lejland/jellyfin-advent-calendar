@@ -1,6 +1,18 @@
+<p align="center">
+  <img src="assets/advent-calendar-social.png" alt="Festive advent calendar doors with cinema-inspired lighting" width="860">
+</p>
+
 # Jellyfin Advent Calendar Plugin
 
 An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turns a TV series into a December advent calendar.
+
+**Open a door each day and watch the matching episode directly in Jellyfin.**
+
+## Documentation
+
+- [User guide](docs/USER_GUIDE.md): installation, configuration, access, and troubleshooting
+- [Release update guide](docs/UPDATING_RELEASES.md): build and publish future releases
+- [Release history](CHANGELOG.md): changes in each version
 
 ## Project Note
 
@@ -25,61 +37,13 @@ This plugin was created 100% with AI.
 - Tested against Jellyfin `10.11.11`
 
 
-## Admin Setup
+## Quick Configuration
 
-Open the plugin settings in Jellyfin and configure:
-
-1. `Page title`
-2. `Language`
-3. `Series`
-4. `Season numbers`
-5. `Doors`
-6. `Custom missing episode message`
-7. `Allowed users`
-8. `Try to launch playback in fullscreen`
-9. `Debug mode: unlock all doors`
-
-Notes:
-
-- If `Season numbers` is blank, the plugin uses season `1`
-- `Season numbers` can be a comma-separated list such as `1,2`
-- Multiple seasons are chained in order
-- Missing episode numbers stay missing at their original door position
-- The admin page contains a quick button to open `/adventcalendar`
-
-## Important Behavior
-
-### Door Mapping
-
-- Season mapping is based on actual episode numbers, not just episode count
-- If season 1 has episodes `1-8` and `10-12`, door `9` stays missing
-- If season 1 spans 12 doors, then season 2 starts at door `13`
-
-### Opened Doors
-
-- Opened doors are remembered per Jellyfin username
-- User A opening door `5` does not open door `5` for User B
-- Reset clears remembered opened doors for all users for the current year
-
-### Access Control
-
-- If `Allowed users` is empty, every signed-in user can use the calendar
-- If `Allowed users` has names, only those usernames can use it
-- If a visitor is not signed in, the page shows a friendly holiday message instead of a raw auth error
-
-### Missing Episode Behavior
-
-- If `Custom missing episode message` is empty, missing doors are disabled
-- If `Custom missing episode message` has a value, that message is shown on missing doors
-- Supported placeholders are `{door}` and `{doorNumber}`
+Follow the [user guide](docs/USER_GUIDE.md) for the complete settings reference, including seasons, missing episodes, allowed users, fullscreen playback, and resets.
 
 ## Planned Feature
 
 A future release is planned to let administrators choose the date when door 1 becomes available. The default will remain December 1.
-
-## Updating The Project
-
-See [the release update guide](docs/UPDATING_RELEASES.md) for the complete build, packaging, GitHub release, and Jellyfin update workflow.
 
 ## Project Layout
 
