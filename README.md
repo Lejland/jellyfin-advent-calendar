@@ -11,7 +11,6 @@ An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turn
 ## Documentation
 
 - [User guide](docs/USER_GUIDE.md): installation, configuration, access, and troubleshooting
-- [Release update guide](docs/UPDATING_RELEASES.md): build and publish future releases
 - [Release history](CHANGELOG.md): changes in each version
 
 ## Project Note
@@ -44,46 +43,6 @@ Follow the [user guide](docs/USER_GUIDE.md) for the complete settings reference,
 ## Planned Feature
 
 A future release is planned to let administrators choose the date when door 1 becomes available. The default will remain December 1.
-
-## Project Layout
-
-- `PluginConfiguration.cs`
-  Stores plugin settings and opened-door persistence
-- `AdventCalendarService.cs`
-  Main logic for access checks, episode mapping, opened doors, and state building
-- `Controllers/AdventCalendarController.cs`
-  Exposes the calendar page, assets, state, door endpoints, and admin helper endpoints
-- `Configuration/configPage.html`
-  Jellyfin admin settings page
-- `Web/adventcalendar.html`
-  Frontend page shell
-- `Web/adventcalendar.js`
-  Frontend rendering, token handling, door interactions, and video playback
-- `Web/adventcalendar.css`
-  Frontend layout and styling
-- `CHANGELOG.md`
-  Release history
-- `artifacts/release/`
-  Build output zip files for distribution
-- `artifacts/repository/manifest.json`
-  Template for a third-party Jellyfin plugin repository
-
-## Build
-
-Local build command used successfully:
-
-```bash
-/tmp/dotnet-advent-build/dotnet9/dotnet build -c Release
-```
-
-Output:
-
-- `bin/Release/net9.0/Jellyfin.Plugin.AdventCalendar.dll`
-- `bin/Release/net9.0/Jellyfin.Plugin.AdventCalendar.deps.json`
-
-Release zip currently created:
-
-- `artifacts/release/jellyfin-plugin-advent-calendar_1.1.2.0.zip`
 
 ## Install And Updates
 
