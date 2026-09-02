@@ -440,7 +440,7 @@
             page.querySelector('#fileCustomBackground').addEventListener('change', function () {
                 const file = this.files && this.files[0];
                 if (!file) { return; }
-                if (!file.type.match(/^image\/(png|jpeg|webp) ) || file.size > 2 * 1024 * 1024) {
+                if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
                     Dashboard.alert({ title: 'Advent Calendar', message: 'Use a PNG, JPEG, or WebP image up to 2 MB.' });
                     this.value = ''; return;
                 }

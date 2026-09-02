@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1.0 - 2026-09-02
+
+Fixed:
+
+- repaired the admin configuration page after custom background support
+
 ## 1.4.0.0 - 2026-09-02
 
 Added:
