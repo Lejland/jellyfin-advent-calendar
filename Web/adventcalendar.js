@@ -129,6 +129,7 @@
             playbackUrl: valueOf(door, 'playbackUrl', 'PlaybackUrl') || '',
             detailsUrl: valueOf(door, 'detailsUrl', 'DetailsUrl') || '',
             thumbnailUrl: valueOf(door, 'thumbnailUrl', 'ThumbnailUrl') || '',
+            backdropUrl: valueOf(door, 'backdropUrl', 'BackdropUrl') || '',
             message: valueOf(door, 'message', 'Message') || ''
         };
     }
@@ -645,6 +646,7 @@
                     }
 
                     applyOpenedState(node, resolvedDoor, state.__accessToken);
+                    if (resolvedDoor.backdropUrl) { setBackground(resolvedDoor.backdropUrl, state.__accessToken); }
                     await playDoor(state, resolvedDoor);
                 } catch (error) {
                     metaEl.textContent = error.message || originalMeta;
