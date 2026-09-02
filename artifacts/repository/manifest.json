@@ -13,7 +13,8 @@
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.3.0.0/jellyfin-plugin-advent-calendar_1.3.0.0.zip",
         "checksum": "7e63fc2cbce36b8860631cb6c57b0d9f",
-        "timestamp": "2026-09-02T09:34:00Z"
+        "timestamp": "2026-09-02T09:34:00Z",
+        "changelog": "Movie Mode test release.\n\n- Choose a Jellyfin movie library or tag\n- Save a fixed random movie order, with manual reshuffle\n- Mystery-cinema artwork before opening\n- Opened doors use movie artwork and each user remembers their latest movie backdrop\n\nCustom background upload and removal are not included yet."
       },
       {
         "version": "1.2.0.0",
