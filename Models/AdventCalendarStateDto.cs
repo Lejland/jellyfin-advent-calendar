@@ -18,6 +18,8 @@ public sealed class AdventCalendarStateDto
 
     public bool DebugUnlockAllDoors { get; init; }
 
+    public bool MovieModeEnabled { get; init; }
+
     public int DoorCount { get; init; }
 
     public int UnlockedDoorCount { get; init; }

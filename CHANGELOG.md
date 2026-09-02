@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0.0 - 2026-09-02
+
+Added in this test release:
+
+- Movie Mode with Jellyfin movie library or tag selection
+- persisted random movie-to-door assignments and manual reshuffle
+- mystery-cinema artwork, movie primary images, and per-user movie backdrops
+
 ## 1.2.0.0 - 2026-09-02
 
 Added in this release:

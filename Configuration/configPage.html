@@ -31,6 +31,28 @@
                         <label class="inputLabel inputLabelUnfocused" for="txtLanguage">Language</label>
                         <input id="txtLanguage" is="emby-input" placeholder="da-DK" />
                     </div>
+                    <label class="checkboxContainer">
+                        <input id="chkMovieModeEnabled" is="emby-checkbox" type="checkbox" />
+                        <span>Enable Movie Mode</span>
+                    </label>
+                    <div id="movieModeSettings" class="verticalSection">
+                        <h3>Movie Mode</h3>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="selMovieSourceType">Movie source</label>
+                            <select id="selMovieSourceType" is="emby-select"><option value="library">Movie library</option><option value="tag">Tag</option></select>
+                        </div>
+                        <div class="inputContainer" id="movieLibraryContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="selMovieLibrary">Movie library</label>
+                            <select id="selMovieLibrary" is="emby-select"></select>
+                        </div>
+                        <div class="inputContainer is-hidden" id="movieTagContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="selMovieTag">Movie tag</label>
+                            <select id="selMovieTag" is="emby-select"></select>
+                        </div>
+                        <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
+                        <div id="movieModeStatus" class="fieldDescription"></div>
+                    </div>
+                    <div id="seriesModeSettings">
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtSeriesSearch">Series</label>
                         <input id="txtSeriesSearch" is="emby-input" list="seriesSuggestions" placeholder="Start typing a Jellyfin series name" autocomplete="off" />
@@ -66,6 +88,7 @@
                         <input id="txtDoorCount" is="emby-input" type="number" min="1" max="31" />
                     </div>
                     <div id="seriesSelectionStatus" class="fieldDescription"></div>
+                    </div>
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtMissingEpisodeMessage">Custom missing episode message</label>
                         <input id="txtMissingEpisodeMessage" is="emby-input" placeholder="Episode {door} is not available yet." />
@@ -115,6 +138,26 @@
             const seasonNumbersInput = page.querySelector('#txtSeasonNumbers');
             let selectedSeries = null;
             let searchTimer = 0;
+
+            function toggleMovieMode() {
+                const enabled = page.querySelector('#chkMovieModeEnabled').checked;
+                page.querySelector('#movieModeSettings').classList.toggle('is-hidden', !enabled);
+                page.querySelector('#seriesModeSettings').classList.toggle('is-hidden', enabled);
+                const byTag = page.querySelector('#selMovieSourceType').value === 'tag';
+                page.querySelector('#movieLibraryContainer').classList.toggle('is-hidden', byTag);
+                page.querySelector('#movieTagContainer').classList.toggle('is-hidden', !byTag);
+            }
+
+            async function loadMovieSources(config) {
+                const [libraries, tags] = await Promise.all([fetchJson('/adventcalendar/admin/movies/libraries'), fetchJson('/adventcalendar/admin/movies/tags')]);
+                const librarySelect = page.querySelector('#selMovieLibrary');
+                const tagSelect = page.querySelector('#selMovieTag');
+                librarySelect.innerHTML = libraries.map(function (item) { return '<option value="' + item.id + '">' + item.name + '</option>'; }).join('');
+                tagSelect.innerHTML = tags.map(function (tag) { return '<option value="' + tag + '">' + tag + '</option>'; }).join('');
+                page.querySelector('#selMovieSourceType').value = getConfigValue(config, 'movieSourceType', 'MovieSourceType', 'library');
+                librarySelect.value = getConfigValue(config, 'movieLibraryId', 'MovieLibraryId', '');
+                tagSelect.value = getConfigValue(config, 'movieTag', 'MovieTag', '');
+            }
 
             function getToken() {
                 if (ApiClient && typeof ApiClient.accessToken === 'function') {
@@ -373,6 +416,9 @@
                 page.querySelector('#txtAllowedUsers').value = getConfigValue(config, 'allowedUsernames', 'AllowedUsernames', '');
                 page.querySelector('#chkAutoFullscreen').checked = getConfigValue(config, 'autoFullscreen', 'AutoFullscreen', true) !== false;
                 page.querySelector('#chkDebugUnlockAllDoors').checked = getConfigValue(config, 'debugUnlockAllDoors', 'DebugUnlockAllDoors', false) === true;
+                page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
+                await loadMovieSources(config);
+                toggleMovieMode();
 
                 await loadSeriesFromConfig(config);
                 await searchSeries(seriesSearchInput.value.trim());
@@ -380,6 +426,13 @@
 
             page.addEventListener('pageshow', function () {
                 loadPage();
+            });
+
+            page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
+            page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
+            page.querySelector('#btnReshuffleMovies').addEventListener('click', async function () {
+                const result = await postJson('/adventcalendar/admin/movies/reshuffle');
+                page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
             });
 
             seriesSearchInput.addEventListener('input', function () {
@@ -441,8 +494,16 @@
                     config.MissingEpisodeBehavior = page.querySelector('#txtMissingEpisodeMessage').value.trim() ? 3 : 0;
                     config.AutoFullscreen = page.querySelector('#chkAutoFullscreen').checked;
                     config.DebugUnlockAllDoors = page.querySelector('#chkDebugUnlockAllDoors').checked;
+                    config.MovieModeEnabled = page.querySelector('#chkMovieModeEnabled').checked;
+                    config.MovieSourceType = page.querySelector('#selMovieSourceType').value;
+                    config.MovieLibraryId = page.querySelector('#selMovieLibrary').value;
+                    config.MovieTag = page.querySelector('#selMovieTag').value;
 
                     await ApiClient.updatePluginConfiguration(activePluginId, config);
+                    if (config.MovieModeEnabled) {
+                        const result = await postJson('/adventcalendar/admin/movies/reshuffle');
+                        page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
+                    }
                     Dashboard.processPluginConfigurationUpdateResult();
                 } catch (error) {
                     Dashboard.alert({

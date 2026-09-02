@@ -6,6 +6,7 @@ using Jellyfin.Plugin.AdventCalendar.Models;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Querying;
+using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.AdventCalendar;
@@ -32,6 +33,16 @@ public sealed class AdventCalendarService
         var calendarYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
         var openedDoors = GetOpenedDoorsForYear(config, calendarYear, currentUsername);
         var resolvedCalendar = ResolveConfiguredCalendar(config, effectiveMissingEpisodeBehavior, safeDoorCount, pathBase);
+        if (config.MovieModeEnabled && TryGetLastOpenedMovieDoor(config, currentUsername, out var lastMovieDoor)
+            && resolvedCalendar.EpisodesByDoor.TryGetValue(lastMovieDoor, out var lastMovie))
+        {
+            resolvedCalendar.BackgroundImageUrl = BuildItemBackdropUrl(pathBase, lastMovie);
+        }
+        else if (config.MovieModeEnabled && string.IsNullOrWhiteSpace(resolvedCalendar.BackgroundImageUrl))
+        {
+            resolvedCalendar.BackgroundImageUrl = BuildRelativeUrl(pathBase, "/adventcalendar/assets/movie-mystery-cinema.png");
+        }
+
         var title = string.IsNullOrWhiteSpace(config.PageTitle)
             ? resolvedCalendar.SeriesTitle
             : config.PageTitle;
@@ -151,6 +162,10 @@ public sealed class AdventCalendarService
         }
 
         MarkDoorAsOpened(config, calendarYear, currentUsername, doorNumber);
+        if (config.MovieModeEnabled)
+        {
+            MarkLastOpenedMovieDoor(config, currentUsername, doorNumber);
+        }
 
         return new AdventCalendarDoorDto
         {
@@ -165,7 +180,8 @@ public sealed class AdventCalendarService
             EpisodeNumber = episode.IndexNumber,
             PlaybackUrl = BuildPlaybackUrl(pathBase, episode),
             DetailsUrl = BuildDetailsUrl(pathBase, episode),
-            ThumbnailUrl = BuildThumbnailUrl(pathBase, episode)
+            ThumbnailUrl = BuildThumbnailUrl(pathBase, episode),
+            BackdropUrl = BuildItemBackdropUrl(pathBase, episode)
         };
     }
 
@@ -261,6 +277,7 @@ public sealed class AdventCalendarService
                 PlaybackUrl = hasEpisode ? BuildPlaybackUrl(pathBase, episode!) : string.Empty,
                 DetailsUrl = hasEpisode ? BuildDetailsUrl(pathBase, episode!) : string.Empty,
                 ThumbnailUrl = hasEpisode && isOpened ? BuildThumbnailUrl(pathBase, episode!) : string.Empty,
+                BackdropUrl = hasEpisode ? BuildItemBackdropUrl(pathBase, episode!) : string.Empty,
                 Message = BuildDoorMessage(doorNumber, isUnlocked, isOpened, hasEpisode, Plugin.Instance.Configuration)
             });
         }
@@ -270,6 +287,10 @@ public sealed class AdventCalendarService
 
     private ResolvedCalendar ResolveConfiguredCalendar(PluginConfiguration config, MissingEpisodeBehavior behavior, int doorCount, string pathBase)
     {
+        if (config.MovieModeEnabled)
+        {
+            return ResolveMovieCalendar(config, doorCount, pathBase);
+        }
         if (!TryResolveSeries(config, out var series))
         {
             return new ResolvedCalendar
@@ -323,6 +344,81 @@ public sealed class AdventCalendarService
             BackgroundImageUrl = BuildItemBackdropUrl(pathBase, series),
             EpisodesByDoor = BuildEpisodeMap(behavior, selectedSeasons, doorCount)
         };
+    }
+
+    public IReadOnlyList<object> GetMovieLibraries()
+    {
+        return _libraryManager.GetVirtualFolders()
+            .Where(folder => folder.CollectionType == CollectionTypeOptions.movies)
+            .OrderBy(folder => folder.Name)
+            .Select(folder => new { id = folder.ItemId.ToString(), name = folder.Name })
+            .Cast<object>()
+            .ToList();
+    }
+
+    public IReadOnlyList<string> GetMovieTags()
+    {
+        return GetAllMovies()
+            .SelectMany(movie => movie.Tags ?? [])
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(tag => tag)
+            .ToList();
+    }
+
+    public int ReshuffleMovies()
+    {
+        var config = Plugin.Instance.Configuration;
+        var movies = GetConfiguredMovies(config).OrderBy(_ => Random.Shared.Next()).ToList();
+        config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(movies.Select(movie => movie.Id.ToString("N")).ToArray());
+        Plugin.Instance.SaveConfiguration();
+        return movies.Count;
+    }
+
+    private ResolvedCalendar ResolveMovieCalendar(PluginConfiguration config, int doorCount, string pathBase)
+    {
+        var ids = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
+        if (ids.Count == 0)
+        {
+            return new ResolvedCalendar { IsConfigured = false, SeriesTitle = "Movie Calendar", SeasonLabel = "Movie Mode", Message = "Save Movie Mode or use Reshuffle movies to assign the selected movies to doors." };
+        }
+
+        var movies = new Dictionary<int, BaseItem>();
+        for (var index = 0; index < ids.Count && index < doorCount; index++)
+        {
+            if (TryGetItem(ids[index], out var movie) && string.Equals(movie.GetType().Name, "Movie", StringComparison.OrdinalIgnoreCase))
+            {
+                movies[index + 1] = movie;
+            }
+        }
+
+        return new ResolvedCalendar { IsConfigured = true, SeriesTitle = "Movie Calendar", SeasonLabel = "Movie Mode", BackgroundImageUrl = string.Empty, EpisodesByDoor = movies };
+    }
+
+    private IReadOnlyList<BaseItem> GetConfiguredMovies(PluginConfiguration config)
+    {
+        var movies = GetAllMovies();
+        if (string.Equals(config.MovieSourceType, "tag", StringComparison.OrdinalIgnoreCase))
+        {
+            return movies.Where(movie => movie.Tags?.Contains(config.MovieTag, StringComparer.OrdinalIgnoreCase) == true).ToList();
+        }
+
+        return TryParseGuid(config.MovieLibraryId, out var libraryId)
+            ? movies.Where(movie => movie.GetAncestorIds().Contains(libraryId)).ToList()
+            : [];
+    }
+
+    private IReadOnlyList<BaseItem> GetAllMovies()
+    {
+        return _libraryManager.GetItemList(new InternalItemsQuery { Recursive = true, IncludeItemTypes = [BaseItemKind.Movie] })
+            .OrderBy(movie => movie.SortName ?? movie.Name)
+            .ToList();
+    }
+
+    private static IReadOnlyList<string> DeserializeMovieAssignments(string? json)
+    {
+        try { return JsonSerializer.Deserialize<string[]>(json ?? string.Empty) ?? []; }
+        catch { return []; }
     }
 
     private Dictionary<int, BaseItem> BuildEpisodeMap(MissingEpisodeBehavior behavior, IReadOnlyList<BaseItem> selectedSeasons, int doorCount)
@@ -724,6 +820,27 @@ public sealed class AdventCalendarService
         Plugin.Instance.SaveConfiguration();
     }
 
+    private static bool TryGetLastOpenedMovieDoor(PluginConfiguration config, string? currentUsername, out int doorNumber)
+    {
+        doorNumber = 0;
+        try
+        {
+            var state = JsonSerializer.Deserialize<Dictionary<string, int>>(config.LastOpenedMovieDoorByUserJson) ?? [];
+            return state.TryGetValue(NormalizeUsernameKey(currentUsername), out doorNumber) && doorNumber > 0;
+        }
+        catch { return false; }
+    }
+
+    private static void MarkLastOpenedMovieDoor(PluginConfiguration config, string? currentUsername, int doorNumber)
+    {
+        Dictionary<string, int> state;
+        try { state = JsonSerializer.Deserialize<Dictionary<string, int>>(config.LastOpenedMovieDoorByUserJson) ?? []; }
+        catch { state = []; }
+        state[NormalizeUsernameKey(currentUsername)] = doorNumber;
+        config.LastOpenedMovieDoorByUserJson = JsonSerializer.Serialize(state);
+        Plugin.Instance.SaveConfiguration();
+    }
+
     private static string NormalizeUsernameKey(string? currentUsername)
     {
         return string.IsNullOrWhiteSpace(currentUsername)
@@ -812,7 +929,7 @@ public sealed class AdventCalendarService
 
         public string SeasonLabel { get; init; } = "Season 1";
 
-        public string BackgroundImageUrl { get; init; } = string.Empty;
+        public string BackgroundImageUrl { get; set; } = string.Empty;
 
         public string Message { get; init; } = string.Empty;
 

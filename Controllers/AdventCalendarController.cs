@@ -33,6 +33,16 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("/adventcalendar/assets/movie-mystery-cinema.png")]
+    public IActionResult GetMovieMysteryArtwork()
+    {
+        var assembly = typeof(Plugin).Assembly;
+        var stream = assembly.GetManifestResourceStream("Jellyfin.Plugin.AdventCalendar.assets.movie-mystery-cinema.png")
+            ?? throw new InvalidOperationException("Movie mystery artwork was not found.");
+        return File(stream, "image/png");
+    }
+
+    [AllowAnonymous]
     [HttpGet("/adventcalendar/assets/adventcalendar.js")]
     [Produces("application/javascript")]
     public IActionResult GetCalendarScript()
@@ -61,6 +71,27 @@ public sealed class AdventCalendarController : ControllerBase
     {
         _service.ResetOpenedDoors();
         return Ok(new { success = true });
+    }
+
+    [Authorize]
+    [HttpPost("/adventcalendar/admin/movies/reshuffle")]
+    public IActionResult ReshuffleMovies()
+    {
+        return Ok(new { count = _service.ReshuffleMovies() });
+    }
+
+    [Authorize]
+    [HttpGet("/adventcalendar/admin/movies/libraries")]
+    public IActionResult GetMovieLibraries()
+    {
+        return Ok(_service.GetMovieLibraries());
+    }
+
+    [Authorize]
+    [HttpGet("/adventcalendar/admin/movies/tags")]
+    public IActionResult GetMovieTags()
+    {
+        return Ok(_service.GetMovieTags());
     }
 
     [Authorize]

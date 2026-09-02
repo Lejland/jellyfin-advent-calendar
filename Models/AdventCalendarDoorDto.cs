@@ -26,5 +26,7 @@ public sealed class AdventCalendarDoorDto
 
     public string ThumbnailUrl { get; init; } = string.Empty;
 
+    public string BackdropUrl { get; init; } = string.Empty;
+
     public string Message { get; init; } = string.Empty;
 }

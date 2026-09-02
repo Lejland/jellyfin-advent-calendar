@@ -32,7 +32,7 @@ This plugin was created 100% with AI.
 
 ## Current Status
 
-- Current release: `1.2.0.0`
+- Current release: `1.3.0.0`
 - Tested against Jellyfin `10.11.11`
 
 

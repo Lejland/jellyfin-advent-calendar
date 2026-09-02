@@ -22,6 +22,20 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public int FirstDoorDay { get; set; } = 1;
 
+    public bool MovieModeEnabled { get; set; }
+
+    public string MovieSourceType { get; set; } = "library";
+
+    public string MovieLibraryId { get; set; } = string.Empty;
+
+    public string MovieTag { get; set; } = string.Empty;
+
+    public string MovieDoorAssignmentsJson { get; set; } = string.Empty;
+
+    public string LastOpenedMovieDoorByUserJson { get; set; } = string.Empty;
+
+    public string CustomBackgroundFileName { get; set; } = string.Empty;
+
     public MissingEpisodeBehavior MissingEpisodeBehavior { get; set; } = MissingEpisodeBehavior.DisableDoor;
 
     public string MissingEpisodeMessage { get; set; } = string.Empty;

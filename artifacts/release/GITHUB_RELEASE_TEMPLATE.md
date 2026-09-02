@@ -2,7 +2,7 @@
 
 ## Title
 
-`Advent Calendar 1.2.0.0`
+`Advent Calendar 1.3.0.0`
 
 ## Release Notes
 
@@ -30,7 +30,7 @@ Advent Calendar is an unofficial Jellyfin plugin that turns a season into a date
 
 Manual install:
 
-1. Download `jellyfin-plugin-advent-calendar_1.2.0.0.zip`
+1. Download `jellyfin-plugin-advent-calendar_1.3.0.0.zip`
 2. Extract into Jellyfin plugin folder:
    `.../plugins/AdventCalendar/`
 3. Restart Jellyfin
@@ -43,9 +43,9 @@ Third-party repository install:
 
 ### Files
 
-- `jellyfin-plugin-advent-calendar_1.2.0.0.zip`
+- `jellyfin-plugin-advent-calendar_1.3.0.0.zip`
 - `manifest.json`
 
 ### Checksum
 
-- MD5: `fc5ff9a15c82440a6baff0ba94a8c4b0`
+- MD5: `7e63fc2cbce36b8860631cb6c57b0d9f`
