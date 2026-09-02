@@ -31,6 +31,12 @@
                         <label class="inputLabel inputLabelUnfocused" for="txtLanguage">Language</label>
                         <input id="txtLanguage" is="emby-input" placeholder="da-DK" />
                     </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="fileCustomBackground">Custom calendar background</label>
+                        <input id="fileCustomBackground" type="file" accept="image/png,image/jpeg,image/webp" />
+                        <button id="btnRemoveCustomBackground" is="emby-button" type="button" class="raised">Remove background image</button>
+                        <div id="customBackgroundStatus" class="fieldDescription"></div>
+                    </div>
                     <label class="checkboxContainer">
                         <input id="chkMovieModeEnabled" is="emby-checkbox" type="checkbox" />
                         <span>Enable Movie Mode</span>
@@ -138,6 +144,7 @@
             const seasonNumbersInput = page.querySelector('#txtSeasonNumbers');
             let selectedSeries = null;
             let searchTimer = 0;
+            let customBackgroundImageData = '';
 
             function toggleMovieMode() {
                 const enabled = page.querySelector('#chkMovieModeEnabled').checked;
@@ -416,6 +423,8 @@
                 page.querySelector('#txtAllowedUsers').value = getConfigValue(config, 'allowedUsernames', 'AllowedUsernames', '');
                 page.querySelector('#chkAutoFullscreen').checked = getConfigValue(config, 'autoFullscreen', 'AutoFullscreen', true) !== false;
                 page.querySelector('#chkDebugUnlockAllDoors').checked = getConfigValue(config, 'debugUnlockAllDoors', 'DebugUnlockAllDoors', false) === true;
+                customBackgroundImageData = getConfigValue(config, 'customBackgroundImageData', 'CustomBackgroundImageData', '');
+                page.querySelector('#customBackgroundStatus').textContent = customBackgroundImageData ? 'Custom background image is active.' : 'Automatic backgrounds are active.';
                 page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
                 await loadMovieSources(config);
                 toggleMovieMode();
@@ -427,6 +436,19 @@
             page.addEventListener('pageshow', function () {
                 loadPage();
             });
+
+            page.querySelector('#fileCustomBackground').addEventListener('change', function () {
+                const file = this.files && this.files[0];
+                if (!file) { return; }
+                if (!file.type.match(/^image\/(png|jpeg|webp) ) || file.size > 2 * 1024 * 1024) {
+                    Dashboard.alert({ title: 'Advent Calendar', message: 'Use a PNG, JPEG, or WebP image up to 2 MB.' });
+                    this.value = ''; return;
+                }
+                const reader = new FileReader();
+                reader.onload = function () { customBackgroundImageData = String(reader.result || ''); page.querySelector('#customBackgroundStatus').textContent = 'Custom background image will be used after Save.'; };
+                reader.readAsDataURL(file);
+            });
+            page.querySelector('#btnRemoveCustomBackground').addEventListener('click', function () { customBackgroundImageData = ''; page.querySelector('#fileCustomBackground').value = ''; page.querySelector('#customBackgroundStatus').textContent = 'Automatic backgrounds will be restored after Save.'; });
 
             page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
             page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
@@ -471,15 +493,18 @@
                 }
 
                 try {
-                    const validated = await validateSeriesAndSeasons();
+                    const movieModeEnabled = page.querySelector('#chkMovieModeEnabled').checked;
+                    const validated = movieModeEnabled ? null : await validateSeriesAndSeasons();
                     const config = await ApiClient.getPluginConfiguration(activePluginId);
 
                     config.PageTitle = page.querySelector('#txtPageTitle').value;
                     config.Language = page.querySelector('#txtLanguage').value;
-                    config.SeriesId = extractId(validated.seriesId);
-                    config.SeriesName = validated.seriesName;
-                    config.SeasonNumbers = validated.seasonNumbers;
-                    config.SeasonId = extractId(validated.legacySeasonId);
+                    if (validated) {
+                        config.SeriesId = extractId(validated.seriesId);
+                        config.SeriesName = validated.seriesName;
+                        config.SeasonNumbers = validated.seasonNumbers;
+                        config.SeasonId = extractId(validated.legacySeasonId);
+                    }
                     config.DoorCount = Number(page.querySelector('#txtDoorCount').value || 24);
                     const firstDoorMonth = Number(page.querySelector('#selFirstDoorMonth').value || 12);
                     const firstDoorDay = Number(page.querySelector('#txtFirstDoorDay').value || 1);
@@ -494,7 +519,8 @@
                     config.MissingEpisodeBehavior = page.querySelector('#txtMissingEpisodeMessage').value.trim() ? 3 : 0;
                     config.AutoFullscreen = page.querySelector('#chkAutoFullscreen').checked;
                     config.DebugUnlockAllDoors = page.querySelector('#chkDebugUnlockAllDoors').checked;
-                    config.MovieModeEnabled = page.querySelector('#chkMovieModeEnabled').checked;
+                    config.MovieModeEnabled = movieModeEnabled;
+                    config.CustomBackgroundImageData = customBackgroundImageData;
                     config.MovieSourceType = page.querySelector('#selMovieSourceType').value;
                     config.MovieLibraryId = page.querySelector('#selMovieLibrary').value;
                     config.MovieTag = page.querySelector('#selMovieTag').value;

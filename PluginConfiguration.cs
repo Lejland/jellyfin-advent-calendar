@@ -36,6 +36,8 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public string CustomBackgroundFileName { get; set; } = string.Empty;
 
+    public string CustomBackgroundImageData { get; set; } = string.Empty;
+
     public MissingEpisodeBehavior MissingEpisodeBehavior { get; set; } = MissingEpisodeBehavior.DisableDoor;
 
     public string MissingEpisodeMessage { get; set; } = string.Empty;

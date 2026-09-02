@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0.0 - 2026-09-02
+
+Added:
+
+- shared custom calendar background upload and removal
+- Movie Mode can be saved without a configured series or season
+
 ## 1.3.3.0 - 2026-09-02
 
 Fixed in this release:

@@ -33,7 +33,11 @@ public sealed class AdventCalendarService
         var calendarYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
         var openedDoors = GetOpenedDoorsForYear(config, calendarYear, currentUsername);
         var resolvedCalendar = ResolveConfiguredCalendar(config, effectiveMissingEpisodeBehavior, safeDoorCount, pathBase);
-        if (config.MovieModeEnabled && TryGetLastOpenedMovieDoor(config, currentUsername, out var lastMovieDoor)
+        if (!string.IsNullOrWhiteSpace(config.CustomBackgroundImageData))
+        {
+            resolvedCalendar.BackgroundImageUrl = config.CustomBackgroundImageData;
+        }
+        else if (config.MovieModeEnabled && TryGetLastOpenedMovieDoor(config, currentUsername, out var lastMovieDoor)
             && resolvedCalendar.EpisodesByDoor.TryGetValue(lastMovieDoor, out var lastMovie))
         {
             resolvedCalendar.BackgroundImageUrl = BuildItemBackdropUrl(pathBase, lastMovie);
