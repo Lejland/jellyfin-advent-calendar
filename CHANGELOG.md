@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.2.0 - 2026-09-02
+
+Fixed:
+
+- store uploaded custom backgrounds as server files instead of plugin configuration data
+- restore automatic backgrounds immediately when the custom background is removed
+- keep an uploaded custom background visible after Movie Mode doors are opened
+
 ## 1.4.1.0 - 2026-09-02
 
 Fixed:

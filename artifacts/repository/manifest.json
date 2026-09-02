@@ -9,19 +9,19 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
-        "version": "1.4.1.0",
+        "version": "1.4.2.0",
         "targetAbi": "10.11.0.0",
-        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.1.0/jellyfin-plugin-advent-calendar_1.4.1.0.zip",
-        "checksum": "88b0b96eab0a61c16353f9b2bc37dd74",
-        "timestamp": "2026-09-02T13:18:05Z",
-        "changelog": "Fixed the admin configuration page after custom background support."
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.2.0/jellyfin-plugin-advent-calendar_1.4.2.0.zip",
+        "checksum": "62a7afc149a89ea7ebb4d3423cc961ea",
+        "timestamp": "2026-09-02T13:59:47Z",
+        "changelog": "Fixed custom background handling: uploads are stored as server files, removal restores automatic backgrounds, and a custom background remains active after Movie Mode doors open."
       },
       {
         "version": "1.4.1.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.1.0/jellyfin-plugin-advent-calendar_1.4.1.0.zip",
-        "checksum": "f44380cc70576be11d44a17dcdb3dbfa",
-        "timestamp": "2026-09-02T13:13:20Z",
+        "checksum": "88b0b96eab0a61c16353f9b2bc37dd74",
+        "timestamp": "2026-09-02T13:18:05Z",
         "changelog": "Fixed the admin configuration page after custom background support."
       },
       {

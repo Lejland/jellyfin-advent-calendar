@@ -33,7 +33,11 @@ public sealed class AdventCalendarService
         var calendarYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
         var openedDoors = GetOpenedDoorsForYear(config, calendarYear, currentUsername);
         var resolvedCalendar = ResolveConfiguredCalendar(config, effectiveMissingEpisodeBehavior, safeDoorCount, pathBase);
-        if (!string.IsNullOrWhiteSpace(config.CustomBackgroundImageData))
+        if (!string.IsNullOrWhiteSpace(config.CustomBackgroundFileName))
+        {
+            resolvedCalendar.BackgroundImageUrl = BuildRelativeUrl(pathBase, "/adventcalendar/assets/custom-background");
+        }
+        else if (!string.IsNullOrWhiteSpace(config.CustomBackgroundImageData))
         {
             resolvedCalendar.BackgroundImageUrl = config.CustomBackgroundImageData;
         }

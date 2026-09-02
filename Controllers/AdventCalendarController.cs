@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Jellyfin.Plugin.AdventCalendar.Models;
 using System.Net.Mime;
@@ -30,6 +31,41 @@ public sealed class AdventCalendarController : ControllerBase
     public IActionResult GetCalendarStyles()
     {
         return Content(RenderEmbeddedResource("Web.adventcalendar.css"), "text/css");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("/adventcalendar/assets/custom-background")]
+    public IActionResult GetCustomBackground()
+    {
+        var name = Plugin.Instance.Configuration.CustomBackgroundFileName;
+        var path = Path.Combine(Plugin.Instance.DataFolderPath, name);
+        return string.IsNullOrWhiteSpace(name) || !System.IO.File.Exists(path) ? NotFound() : PhysicalFile(path, "image/*");
+    }
+
+    [Authorize]
+    [HttpPost("/adventcalendar/admin/background")]
+    public async Task<IActionResult> UploadCustomBackground(IFormFile file)
+    {
+        if (file.Length == 0 || file.Length > 2 * 1024 * 1024 || !new[] { "image/png", "image/jpeg", "image/webp" }.Contains(file.ContentType)) return BadRequest();
+        var extension = file.ContentType == "image/png" ? ".png" : file.ContentType == "image/webp" ? ".webp" : ".jpg";
+        Directory.CreateDirectory(Plugin.Instance.DataFolderPath);
+        var name = "custom-calendar-background" + extension;
+        await using var stream = System.IO.File.Create(Path.Combine(Plugin.Instance.DataFolderPath, name));
+        await file.CopyToAsync(stream);
+        Plugin.Instance.Configuration.CustomBackgroundFileName = name;
+        Plugin.Instance.Configuration.CustomBackgroundImageData = string.Empty;
+        Plugin.Instance.SaveConfiguration();
+        return Ok(new { success = true });
+    }
+
+    [Authorize]
+    [HttpPost("/adventcalendar/admin/background/remove")]
+    public IActionResult RemoveCustomBackground()
+    {
+        Plugin.Instance.Configuration.CustomBackgroundFileName = string.Empty;
+        Plugin.Instance.Configuration.CustomBackgroundImageData = string.Empty;
+        Plugin.Instance.SaveConfiguration();
+        return Ok(new { success = true });
     }
 
     [AllowAnonymous]

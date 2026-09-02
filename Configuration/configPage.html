@@ -439,16 +439,15 @@
 
             page.querySelector('#fileCustomBackground').addEventListener('change', function () {
                 const file = this.files && this.files[0];
-                if (!file) { return; }
-                if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
-                    Dashboard.alert({ title: 'Advent Calendar', message: 'Use a PNG, JPEG, or WebP image up to 2 MB.' });
-                    this.value = ''; return;
-                }
-                const reader = new FileReader();
-                reader.onload = function () { customBackgroundImageData = String(reader.result || ''); page.querySelector('#customBackgroundStatus').textContent = 'Custom background image will be used after Save.'; };
-                reader.readAsDataURL(file);
+                if (!file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) { this.value = ''; return; }
+                page.querySelector('#customBackgroundStatus').textContent = 'Custom background will upload after Save.';
             });
-            page.querySelector('#btnRemoveCustomBackground').addEventListener('click', function () { customBackgroundImageData = ''; page.querySelector('#fileCustomBackground').value = ''; page.querySelector('#customBackgroundStatus').textContent = 'Automatic backgrounds will be restored after Save.'; });
+            page.querySelector('#btnRemoveCustomBackground').addEventListener('click', async function () {
+                await postJson('/adventcalendar/admin/background/remove');
+                customBackgroundImageData = '';
+                page.querySelector('#fileCustomBackground').value = '';
+                page.querySelector('#customBackgroundStatus').textContent = 'Automatic backgrounds are active.';
+            });
 
             page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
             page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
@@ -520,12 +519,18 @@
                     config.AutoFullscreen = page.querySelector('#chkAutoFullscreen').checked;
                     config.DebugUnlockAllDoors = page.querySelector('#chkDebugUnlockAllDoors').checked;
                     config.MovieModeEnabled = movieModeEnabled;
-                    config.CustomBackgroundImageData = customBackgroundImageData;
+                    config.CustomBackgroundImageData = '';
                     config.MovieSourceType = page.querySelector('#selMovieSourceType').value;
                     config.MovieLibraryId = page.querySelector('#selMovieLibrary').value;
                     config.MovieTag = page.querySelector('#selMovieTag').value;
 
                     await ApiClient.updatePluginConfiguration(activePluginId, config);
+                    const backgroundFile = page.querySelector('#fileCustomBackground').files[0];
+                    if (backgroundFile) {
+                        const formData = new FormData(); formData.append('file', backgroundFile);
+                        const response = await fetch(buildServerUrl('/adventcalendar/admin/background'), { method: 'POST', headers: { 'X-Emby-Token': getToken() }, body: formData });
+                        if (!response.ok) { throw new Error('Could not upload the background image.'); }
+                    }
                     if (config.MovieModeEnabled) {
                         const result = await postJson('/adventcalendar/admin/movies/reshuffle');
                         page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
