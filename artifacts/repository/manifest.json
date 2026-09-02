@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.3.2.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.3.2.0/jellyfin-plugin-advent-calendar_1.3.2.0.zip",
+        "checksum": "b8fa4706bde39e7344456f5834b81d23",
+        "timestamp": "2026-09-02T11:32:06Z",
+        "changelog": "Fixed Movie Mode backdrop synchronization after opening a door."
+      },
+      {
         "version": "1.3.1.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.3.1.0/jellyfin-plugin-advent-calendar_1.3.1.0.zip",

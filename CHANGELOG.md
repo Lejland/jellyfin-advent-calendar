@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2.0 - 2026-09-02
+
+Fixed in this release:
+
+- after opening a movie, remaining closed doors now sync as a seamless continuation of the selected movie backdrop
+
 ## 1.3.1.0 - 2026-09-02
 
 Fixed in this release:

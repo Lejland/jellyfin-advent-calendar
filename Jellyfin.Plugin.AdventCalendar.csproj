@@ -6,9 +6,9 @@
     <RootNamespace>Jellyfin.Plugin.AdventCalendar</RootNamespace>
     <AssemblyName>Jellyfin.Plugin.AdventCalendar</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.3.1.0</Version>
-    <AssemblyVersion>1.3.1.0</AssemblyVersion>
-    <FileVersion>1.3.1.0</FileVersion>
+    <Version>1.3.2.0</Version>
+    <AssemblyVersion>1.3.2.0</AssemblyVersion>
+    <FileVersion>1.3.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

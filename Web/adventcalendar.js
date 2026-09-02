@@ -654,7 +654,13 @@
                     }
 
                     applyOpenedState(node, resolvedDoor, state.__accessToken);
-                    if (resolvedDoor.backdropUrl) { setBackground(resolvedDoor.backdropUrl, state.__accessToken); }
+                    if (resolvedDoor.backdropUrl) {
+                        const stateDoor = state.doors.find(function (item) { return item.doorNumber === resolvedDoor.doorNumber; });
+                        if (stateDoor) { Object.assign(stateDoor, resolvedDoor); }
+                        state.movieModeEnabled = false;
+                        setBackground(resolvedDoor.backdropUrl, state.__accessToken);
+                        sampleBackgroundPalette(resolvedDoor.backdropUrl, state.__accessToken);
+                    }
                     await playDoor(state, resolvedDoor);
                 } catch (error) {
                     metaEl.textContent = error.message || originalMeta;
