@@ -2,15 +2,16 @@
 
 ## Title
 
-`Advent Calendar 1.1.2.0`
+`Advent Calendar 1.2.0.0`
 
 ## Release Notes
 
-Advent Calendar is an unofficial Jellyfin plugin that turns a season into a December advent calendar page.
+Advent Calendar is an unofficial Jellyfin plugin that turns a season into a date-based advent calendar page.
 
 ### Highlights
 
-- Green Open advent calendar page action and red Close all opened doors action in the admin panel
+- Choose the recurring month and day when door 1 opens
+- Earlier doors stay available through the configured calendar window, including across New Year when needed
 
 - Custom `/adventcalendar` page
 - Per-user remembered opened doors
@@ -29,7 +30,7 @@ Advent Calendar is an unofficial Jellyfin plugin that turns a season into a Dece
 
 Manual install:
 
-1. Download `jellyfin-plugin-advent-calendar_1.1.2.0.zip`
+1. Download `jellyfin-plugin-advent-calendar_1.2.0.0.zip`
 2. Extract into Jellyfin plugin folder:
    `.../plugins/AdventCalendar/`
 3. Restart Jellyfin
@@ -42,9 +43,9 @@ Third-party repository install:
 
 ### Files
 
-- `jellyfin-plugin-advent-calendar_1.1.2.0.zip`
+- `jellyfin-plugin-advent-calendar_1.2.0.0.zip`
 - `manifest.json`
 
 ### Checksum
 
-- MD5: `badc48b5a557bb5ac0ad9489876670dd`
+- MD5: `fc5ff9a15c82440a6baff0ba94a8c4b0`

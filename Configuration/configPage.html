@@ -43,6 +43,25 @@
                         <div class="fieldDescription">Optional. Leave blank to use season 1. Multiple seasons continue the calendar in order, so door 13 can become season 2 episode 1.</div>
                     </div>
                     <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="selFirstDoorMonth">Door 1 opens every year on</label>
+                        <select id="selFirstDoorMonth" is="emby-select">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <input id="txtFirstDoorDay" is="emby-input" type="number" min="1" max="31" aria-label="Day of month" />
+                        <div class="fieldDescription">Earlier doors remain available. The calendar can continue into the following month or year.</div>
+                    </div>
+                    <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtDoorCount">Doors</label>
                         <input id="txtDoorCount" is="emby-input" type="number" min="1" max="31" />
                     </div>
@@ -346,6 +365,10 @@
                 page.querySelector('#txtPageTitle').value = getConfigValue(config, 'pageTitle', 'PageTitle', '');
                 page.querySelector('#txtLanguage').value = getConfigValue(config, 'language', 'Language', 'da-DK');
                 page.querySelector('#txtDoorCount').value = getConfigValue(config, 'doorCount', 'DoorCount', 24);
+                const firstDoorMonth = Number(getConfigValue(config, 'firstDoorMonth', 'FirstDoorMonth', 12));
+                const firstDoorDay = Number(getConfigValue(config, 'firstDoorDay', 'FirstDoorDay', 1));
+                page.querySelector('#selFirstDoorMonth').value = String(firstDoorMonth >= 1 && firstDoorMonth <= 12 ? firstDoorMonth : 12);
+                page.querySelector('#txtFirstDoorDay').value = firstDoorDay >= 1 && firstDoorDay <= 31 ? firstDoorDay : 1;
                 page.querySelector('#txtMissingEpisodeMessage').value = getConfigValue(config, 'missingEpisodeMessage', 'MissingEpisodeMessage', '');
                 page.querySelector('#txtAllowedUsers').value = getConfigValue(config, 'allowedUsernames', 'AllowedUsernames', '');
                 page.querySelector('#chkAutoFullscreen').checked = getConfigValue(config, 'autoFullscreen', 'AutoFullscreen', true) !== false;
@@ -405,6 +428,14 @@
                     config.SeasonNumbers = validated.seasonNumbers;
                     config.SeasonId = extractId(validated.legacySeasonId);
                     config.DoorCount = Number(page.querySelector('#txtDoorCount').value || 24);
+                    const firstDoorMonth = Number(page.querySelector('#selFirstDoorMonth').value || 12);
+                    const firstDoorDay = Number(page.querySelector('#txtFirstDoorDay').value || 1);
+                    const maxFirstDoorDay = new Date(2024, firstDoorMonth, 0).getDate();
+                    if (firstDoorDay < 1 || firstDoorDay > maxFirstDoorDay) {
+                        throw new Error('Choose a valid day for the selected month.');
+                    }
+                    config.FirstDoorMonth = firstDoorMonth;
+                    config.FirstDoorDay = firstDoorDay;
                     config.MissingEpisodeMessage = page.querySelector('#txtMissingEpisodeMessage').value;
                     config.AllowedUsernames = page.querySelector('#txtAllowedUsers').value;
                     config.MissingEpisodeBehavior = page.querySelector('#txtMissingEpisodeMessage').value.trim() ? 3 : 0;

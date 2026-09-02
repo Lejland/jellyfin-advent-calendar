@@ -28,8 +28,9 @@ public sealed class AdventCalendarService
         var effectiveMissingEpisodeBehavior = GetEffectiveMissingEpisodeBehavior(config);
         var safeDoorCount = Math.Clamp(config.DoorCount, 1, 31);
         var now = DateTime.Now;
-        var unlockedDoorCount = GetUnlockedDoorCount(now, safeDoorCount, config.DebugUnlockAllDoors);
-        var openedDoors = GetOpenedDoorsForYear(config, now.Year, currentUsername);
+        var unlockedDoorCount = GetUnlockedDoorCount(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
+        var calendarYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
+        var openedDoors = GetOpenedDoorsForYear(config, calendarYear, currentUsername);
         var resolvedCalendar = ResolveConfiguredCalendar(config, effectiveMissingEpisodeBehavior, safeDoorCount, pathBase);
         var title = string.IsNullOrWhiteSpace(config.PageTitle)
             ? resolvedCalendar.SeriesTitle
@@ -120,7 +121,8 @@ public sealed class AdventCalendarService
         var effectiveMissingEpisodeBehavior = GetEffectiveMissingEpisodeBehavior(config);
         var safeDoorCount = Math.Clamp(config.DoorCount, 1, 31);
         var now = DateTime.Now;
-        var unlockedDoorCount = GetUnlockedDoorCount(now, safeDoorCount, config.DebugUnlockAllDoors);
+        var unlockedDoorCount = GetUnlockedDoorCount(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
+        var calendarYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
 
         if (!HasAccess(config, currentUsername))
         {
@@ -148,7 +150,7 @@ public sealed class AdventCalendarService
             return CreateUnavailableDoor(doorNumber, true, BuildMissingEpisodeMessage(config, doorNumber));
         }
 
-        MarkDoorAsOpened(config, now.Year, currentUsername, doorNumber);
+        MarkDoorAsOpened(config, calendarYear, currentUsername, doorNumber);
 
         return new AdventCalendarDoorDto
         {
@@ -170,7 +172,9 @@ public sealed class AdventCalendarService
     public void ResetOpenedDoors()
     {
         var config = Plugin.Instance.Configuration;
-        config.OpenedDoorsYear = DateTime.Now.Year;
+        var now = DateTime.Now;
+        var safeDoorCount = Math.Clamp(config.DoorCount, 1, 31);
+        config.OpenedDoorsYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
         config.OpenedDoors = Array.Empty<int>();
         config.OpenedDoorsByUserJson = string.Empty;
         Plugin.Instance.SaveConfiguration();
@@ -522,19 +526,58 @@ public sealed class AdventCalendarService
         return match.Success && Guid.TryParse(match.Value, out result);
     }
 
-    private static int GetUnlockedDoorCount(DateTime now, int doorCount, bool debugUnlockAllDoors)
+    private static int GetUnlockedDoorCount(
+        DateTime now,
+        int doorCount,
+        bool debugUnlockAllDoors,
+        int firstDoorMonth,
+        int firstDoorDay)
     {
         if (debugUnlockAllDoors)
         {
             return doorCount;
         }
 
-        if (now.Month != 12)
+        var activeStart = GetMostRecentFirstDoorDate(now, firstDoorMonth, firstDoorDay);
+        var activeEnd = activeStart.AddDays(doorCount - 1);
+
+        if (now.Date < activeStart || now.Date > activeEnd)
         {
             return 0;
         }
 
-        return Math.Min(now.Day, doorCount);
+        return (now.Date - activeStart).Days + 1;
+    }
+
+    private static int GetCalendarYear(
+        DateTime now,
+        int doorCount,
+        bool debugUnlockAllDoors,
+        int firstDoorMonth,
+        int firstDoorDay)
+    {
+        if (debugUnlockAllDoors)
+        {
+            return now.Year;
+        }
+
+        var activeStart = GetMostRecentFirstDoorDate(now, firstDoorMonth, firstDoorDay);
+        return now.Date <= activeStart.AddDays(doorCount - 1) ? activeStart.Year : now.Year;
+    }
+
+    private static DateTime GetMostRecentFirstDoorDate(DateTime now, int firstDoorMonth, int firstDoorDay)
+    {
+        var currentYearStart = CreateFirstDoorDate(now.Year, firstDoorMonth, firstDoorDay);
+        return now.Date >= currentYearStart
+            ? currentYearStart
+            : CreateFirstDoorDate(now.Year - 1, firstDoorMonth, firstDoorDay);
+    }
+
+    private static DateTime CreateFirstDoorDate(int year, int month, int day)
+    {
+        var safeMonth = Math.Clamp(month, 1, 12);
+        var safeDay = Math.Clamp(day, 1, DateTime.DaysInMonth(year, safeMonth));
+        return new DateTime(year, safeMonth, safeDay);
     }
 
     private static bool HasAccess(PluginConfiguration config, string? currentUsername)

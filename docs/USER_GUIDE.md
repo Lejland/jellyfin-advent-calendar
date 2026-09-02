@@ -37,6 +37,7 @@ Open **Dashboard** -> **Plugins** -> **Advent Calendar**. Save after changing se
 | Language | Calendar language code, such as `da-DK`. |
 | Series | Jellyfin TV series used as the episode source. |
 | Season numbers | Comma-separated sequence, for example `1,2`. Leave blank for season 1. |
+| Door 1 opens every year on | Month and day for the first door. Defaults to December 1; earlier doors remain available until the calendar window ends. |
 | Doors | Number of doors to display. |
 | Custom missing episode message | Message shown when no matching episode exists. Supports `{door}` and `{doorNumber}`. |
 | Allowed users | Comma-separated Jellyfin usernames. Leave blank for all signed-in users. |

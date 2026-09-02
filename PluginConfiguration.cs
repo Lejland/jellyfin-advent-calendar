@@ -18,6 +18,10 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public int DoorCount { get; set; } = 24;
 
+    public int FirstDoorMonth { get; set; } = 12;
+
+    public int FirstDoorDay { get; set; } = 1;
+
     public MissingEpisodeBehavior MissingEpisodeBehavior { get; set; } = MissingEpisodeBehavior.DisableDoor;
 
     public string MissingEpisodeMessage { get; set; } = string.Empty;

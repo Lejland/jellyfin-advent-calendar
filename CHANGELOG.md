@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0.0 - 2026-09-02
+
+Added in this release:
+
+- configurable recurring date for door 1, defaulting to December 1
+- calendar windows can continue into the following month or year while keeping earlier doors available
+
 ## 1.1.2.0 - 2026-08-31
 
 Changed in this release:

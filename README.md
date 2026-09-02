@@ -32,17 +32,13 @@ This plugin was created 100% with AI.
 
 ## Current Status
 
-- Current release: `1.1.2.0`
+- Current release: `1.2.0.0`
 - Tested against Jellyfin `10.11.11`
 
 
 ## Quick Configuration
 
 Follow the [user guide](docs/USER_GUIDE.md) for the complete settings reference, including seasons, missing episodes, allowed users, fullscreen playback, and resets.
-
-## Planned Feature
-
-A future release is planned to let administrators choose the date when door 1 becomes available. The default will remain December 1.
 
 ## Install And Updates
 
