@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1.0 - 2026-09-02
+
+Fixed in this release:
+
+- each unopened Movie Mode door now displays the complete mystery-cinema artwork instead of a cropped page fragment
+
 ## 1.3.0.0 - 2026-09-02
 
 Added in this test release:

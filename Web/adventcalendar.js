@@ -146,6 +146,7 @@
             hasAccess: valueOf(state, 'hasAccess', 'HasAccess'),
             autoFullscreen: valueOf(state, 'autoFullscreen', 'AutoFullscreen'),
             debugUnlockAllDoors: valueOf(state, 'debugUnlockAllDoors', 'DebugUnlockAllDoors'),
+            movieModeEnabled: valueOf(state, 'movieModeEnabled', 'MovieModeEnabled') === true,
             doorCount: valueOf(state, 'doorCount', 'DoorCount') || 0,
             unlockedDoorCount: valueOf(state, 'unlockedDoorCount', 'UnlockedDoorCount') || 0,
             openedDoorCount: valueOf(state, 'openedDoorCount', 'OpenedDoorCount') || 0,
@@ -475,7 +476,14 @@
         return placements;
     }
 
-    function applyClosedDoorBackdrop(node) {
+    function applyClosedDoorBackdrop(node, movieModeEnabled) {
+        if (movieModeEnabled && currentBackdropMetrics) {
+            node.style.backgroundImage = 'linear-gradient(180deg, rgba(20, 15, 12, 0.25), rgba(8, 8, 12, 0.48)),url("' + currentBackdropMetrics.url + '")';
+            node.style.backgroundSize = 'cover, cover';
+            node.style.backgroundPosition = 'center center, center center';
+            node.style.backgroundRepeat = 'no-repeat, no-repeat';
+            return;
+        }
         if (!currentBackdropMetrics) {
             return;
         }
@@ -660,7 +668,7 @@
 
         window.requestAnimationFrame(function () {
             closedDoorNodes.forEach(function (node) {
-                applyClosedDoorBackdrop(node);
+                applyClosedDoorBackdrop(node, state.movieModeEnabled);
             });
         });
     }
