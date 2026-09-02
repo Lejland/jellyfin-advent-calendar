@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.3.0 - 2026-09-02
+
+Fixed in this release:
+
+- resetting opened doors also clears each users remembered Movie Mode backdrop
+
 ## 1.3.2.0 - 2026-09-02
 
 Fixed in this release:

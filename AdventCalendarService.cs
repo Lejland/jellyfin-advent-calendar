@@ -196,6 +196,7 @@ public sealed class AdventCalendarService
         config.OpenedDoorsYear = GetCalendarYear(now, safeDoorCount, config.DebugUnlockAllDoors, config.FirstDoorMonth, config.FirstDoorDay);
         config.OpenedDoors = Array.Empty<int>();
         config.OpenedDoorsByUserJson = string.Empty;
+        config.LastOpenedMovieDoorByUserJson = string.Empty;
         Plugin.Instance.SaveConfiguration();
     }
 
