@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/advent-calendar-social.png" alt="Festive advent calendar doors with cinema-inspired lighting" width="860">
+  <img src="assets/advent-calendar-banner.png" alt="Advent Calendar Jellyfin Plugin banner with cinematic advent doors" width="860">
 </p>
 
 # Jellyfin Advent Calendar Plugin
