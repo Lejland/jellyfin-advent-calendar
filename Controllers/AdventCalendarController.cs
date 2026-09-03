@@ -26,6 +26,14 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("/adventcalendar/assets/adventcalendar-icon.svg")]
+    [Produces("image/svg+xml")]
+    public IActionResult GetCalendarIcon()
+    {
+        return Content(RenderEmbeddedResource("Web.adventcalendar-icon.svg"), "image/svg+xml");
+    }
+
+    [AllowAnonymous]
     [HttpGet("/adventcalendar/assets/adventcalendar.css")]
     [Produces("text/css")]
     public IActionResult GetCalendarStyles()

@@ -35,9 +35,13 @@ This plugin was created 100% with AI.
 
 ## Current Status
 
-- Current release: `1.4.3.0`
+- Current release: `1.4.4.0`
 - Tested against Jellyfin `10.11.11`
 
+
+## Jellyfin 12 Beta
+
+A [Jellyfin 12 beta build](https://github.com/Lejland/jellyfin-advent-calendar/releases) is available for manual testing. It passed the full functional test suite on Jellyfin `12.0.0`, but Jellyfin 12 itself is pre-release, so use it only on a test server. The normal repository package targets Jellyfin `10.11.x`.
 
 ## Quick Configuration
 

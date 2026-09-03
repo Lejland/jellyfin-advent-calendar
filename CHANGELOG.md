@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.4.0 - 2026-09-03
+
+Added and fixed:
+
+- add a dedicated Advent Calendar browser-tab icon
+- preserve Movie Mode assignments when saving unrelated settings
+- support Jellyfin 12 current authorization format; published separately as a beta-tested GitHub prerelease
+
+
 ## 1.4.3.0 - 2026-09-03
 
 Security and documentation:

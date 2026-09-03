@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.4.4.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.4.0/jellyfin-plugin-advent-calendar_1.4.4.0.zip",
+        "checksum": "9e235d84cb66ea6e55688ee20e0b61a9",
+        "timestamp": "2026-09-03T12:12:54Z",
+        "changelog": "Added an Advent Calendar favicon and fixed Movie Mode assignments so unrelated settings saves no longer reshuffle movies. Jellyfin 12 support is available as a separate beta GitHub release."
+      },
+      {
         "version": "1.4.3.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.3.0/jellyfin-plugin-advent-calendar_1.4.3.0.zip",

@@ -79,7 +79,7 @@
         const effectiveToken = accessToken || resolveCredentials();
         const headers = {};
         if (effectiveToken) {
-            headers['X-Emby-Token'] = effectiveToken;
+            headers.Authorization = 'MediaBrowser Token="' + effectiveToken + '"';
         }
 
         const response = await fetch(url, {
@@ -286,7 +286,7 @@
         }
 
         const separator = url.indexOf('?') === -1 ? '?' : '&';
-        return accessToken ? (url + separator + 'api_key=' + encodeURIComponent(accessToken)) : url;
+        return accessToken ? (url + separator + 'ApiKey=' + encodeURIComponent(accessToken)) : url;
     }
 
     function seededNumber(seedText) {
@@ -681,7 +681,7 @@
 
     async function playDoor(state, door) {
         overlay.classList.remove('is-hidden');
-        player.src = door.playbackUrl + (state.__accessToken ? '&api_key=' + encodeURIComponent(state.__accessToken) : '');
+        player.src = door.playbackUrl + (state.__accessToken ? '&ApiKey=' + encodeURIComponent(state.__accessToken) : '');
 
         try {
             await player.play();

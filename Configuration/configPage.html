@@ -225,11 +225,14 @@
                 return fallbackValue;
             }
 
+            function authorizationHeaders() {
+                const token = getToken();
+                return token ? { Authorization: 'MediaBrowser Token="' + token + '"' } : {};
+            }
+
             async function fetchJson(url) {
                 const response = await fetch(buildServerUrl(url), {
-                    headers: {
-                        'X-Emby-Token': getToken()
-                    }
+                    headers: authorizationHeaders()
                 });
 
                 if (!response.ok) {
@@ -242,9 +245,7 @@
             async function postJson(url) {
                 const response = await fetch(buildServerUrl(url), {
                     method: 'POST',
-                    headers: {
-                        'X-Emby-Token': getToken()
-                    }
+                    headers: authorizationHeaders()
                 });
 
                 if (!response.ok) {
@@ -495,6 +496,15 @@
                     const movieModeEnabled = page.querySelector('#chkMovieModeEnabled').checked;
                     const validated = movieModeEnabled ? null : await validateSeriesAndSeasons();
                     const config = await ApiClient.getPluginConfiguration(activePluginId);
+                    const selectedMovieSourceType = page.querySelector("#selMovieSourceType").value;
+                    const selectedMovieLibraryId = page.querySelector("#selMovieLibrary").value;
+                    const selectedMovieTag = page.querySelector("#selMovieTag").value;
+                    const shouldReshuffleMovies = movieModeEnabled && (
+                        !getConfigValue(config, "movieModeEnabled", "MovieModeEnabled", false) ||
+                        getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== selectedMovieSourceType ||
+                        getConfigValue(config, "movieLibraryId", "MovieLibraryId", "") !== selectedMovieLibraryId ||
+                        getConfigValue(config, "movieTag", "MovieTag", "") !== selectedMovieTag
+                    );
 
                     config.PageTitle = page.querySelector('#txtPageTitle').value;
                     config.Language = page.querySelector('#txtLanguage').value;
@@ -520,18 +530,18 @@
                     config.DebugUnlockAllDoors = page.querySelector('#chkDebugUnlockAllDoors').checked;
                     config.MovieModeEnabled = movieModeEnabled;
                     config.CustomBackgroundImageData = '';
-                    config.MovieSourceType = page.querySelector('#selMovieSourceType').value;
-                    config.MovieLibraryId = page.querySelector('#selMovieLibrary').value;
-                    config.MovieTag = page.querySelector('#selMovieTag').value;
+                    config.MovieSourceType = selectedMovieSourceType;
+                    config.MovieLibraryId = selectedMovieLibraryId;
+                    config.MovieTag = selectedMovieTag;
 
                     await ApiClient.updatePluginConfiguration(activePluginId, config);
                     const backgroundFile = page.querySelector('#fileCustomBackground').files[0];
                     if (backgroundFile) {
                         const formData = new FormData(); formData.append('file', backgroundFile);
-                        const response = await fetch(buildServerUrl('/adventcalendar/admin/background'), { method: 'POST', headers: { 'X-Emby-Token': getToken() }, body: formData });
+                        const response = await fetch(buildServerUrl('/adventcalendar/admin/background'), { method: 'POST', headers: authorizationHeaders(), body: formData });
                         if (!response.ok) { throw new Error('Could not upload the background image.'); }
                     }
-                    if (config.MovieModeEnabled) {
+                    if (shouldReshuffleMovies) {
                         const result = await postJson('/adventcalendar/admin/movies/reshuffle');
                         page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
                     }

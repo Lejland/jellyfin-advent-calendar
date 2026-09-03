@@ -6,9 +6,9 @@
     <RootNamespace>Jellyfin.Plugin.AdventCalendar</RootNamespace>
     <AssemblyName>Jellyfin.Plugin.AdventCalendar</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.4.3.0</Version>
-    <AssemblyVersion>1.4.3.0</AssemblyVersion>
-    <FileVersion>1.4.3.0</FileVersion>
+    <Version>1.4.4.0</Version>
+    <AssemblyVersion>1.4.4.0</AssemblyVersion>
+    <FileVersion>1.4.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +24,7 @@
     <EmbeddedResource Include="Configuration/configPage.html" />
     <EmbeddedResource Include="Web/adventcalendar.html" />
     <EmbeddedResource Include="Web/adventcalendar.css" />
+    <EmbeddedResource Include="Web/adventcalendar-icon.svg" />
     <EmbeddedResource Include="Web/adventcalendar.js" />
     <EmbeddedResource Include="assets/movie-mystery-cinema.png" />
   </ItemGroup>
