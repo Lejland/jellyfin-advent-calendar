@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.3.0 - 2026-09-03
+
+Security and documentation:
+
+- restrict custom background, reset, reshuffle, and content-selection endpoints to Jellyfin administrators
+- allowlist the custom background filename before serving it
+- add a public security policy and document Movie Mode and custom backgrounds
+
+
 ## 1.4.2.0 - 2026-09-02
 
 Fixed:

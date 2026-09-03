@@ -37,12 +37,25 @@ public sealed class AdventCalendarController : ControllerBase
     [HttpGet("/adventcalendar/assets/custom-background")]
     public IActionResult GetCustomBackground()
     {
-        var name = Plugin.Instance.Configuration.CustomBackgroundFileName;
-        var path = Path.Combine(Plugin.Instance.DataFolderPath, name);
-        return string.IsNullOrWhiteSpace(name) || !System.IO.File.Exists(path) ? NotFound() : PhysicalFile(path, "image/*");
+        var fileName = Plugin.Instance.Configuration.CustomBackgroundFileName;
+        var contentType = fileName switch
+        {
+            "custom-calendar-background.png" => "image/png",
+            "custom-calendar-background.jpg" => "image/jpeg",
+            "custom-calendar-background.webp" => "image/webp",
+            _ => null
+        };
+
+        if (contentType is null)
+        {
+            return NotFound();
+        }
+
+        var path = Path.Combine(Plugin.Instance.DataFolderPath, fileName);
+        return System.IO.File.Exists(path) ? PhysicalFile(path, contentType) : NotFound();
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpPost("/adventcalendar/admin/background")]
     public async Task<IActionResult> UploadCustomBackground(IFormFile file)
     {
@@ -58,7 +71,7 @@ public sealed class AdventCalendarController : ControllerBase
         return Ok(new { success = true });
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpPost("/adventcalendar/admin/background/remove")]
     public IActionResult RemoveCustomBackground()
     {
@@ -100,7 +113,7 @@ public sealed class AdventCalendarController : ControllerBase
         return Ok(_service.ResolveDoor(GetCurrentUsername(), Request.PathBase.Value ?? string.Empty, doorNumber));
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpPost("/adventcalendar/admin/reset")]
     [Produces(MediaTypeNames.Application.Json)]
     public IActionResult ResetOpenedDoors()
@@ -109,28 +122,28 @@ public sealed class AdventCalendarController : ControllerBase
         return Ok(new { success = true });
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpPost("/adventcalendar/admin/movies/reshuffle")]
     public IActionResult ReshuffleMovies()
     {
         return Ok(new { count = _service.ReshuffleMovies() });
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/movies/libraries")]
     public IActionResult GetMovieLibraries()
     {
         return Ok(_service.GetMovieLibraries());
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/movies/tags")]
     public IActionResult GetMovieTags()
     {
         return Ok(_service.GetMovieTags());
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/series")]
     [Produces(MediaTypeNames.Application.Json)]
     public IActionResult SearchSeries([FromQuery] string? query)
@@ -138,7 +151,7 @@ public sealed class AdventCalendarController : ControllerBase
         return Ok(_service.FindSeries(query));
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/series/{seriesId}")]
     [Produces(MediaTypeNames.Application.Json)]
     public IActionResult GetSeries(string seriesId)
@@ -147,7 +160,7 @@ public sealed class AdventCalendarController : ControllerBase
         return series is null ? NotFound() : Ok(series);
     }
 
-    [Authorize]
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/series/{seriesId}/seasons")]
     [Produces(MediaTypeNames.Application.Json)]
     public IActionResult GetSeriesSeasons(string seriesId)

@@ -3,6 +3,11 @@ obj/
 artifacts/publish/
 artifacts/tmp-*/
 artifacts/release/*.zip
+.env
+.env.*
+*.key
+*.pem
+*.pfx
 project-saves/
 *.user
 *.suo

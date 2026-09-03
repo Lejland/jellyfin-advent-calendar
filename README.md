@@ -4,7 +4,7 @@
 
 # Jellyfin Advent Calendar Plugin
 
-An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turns a TV series into a December advent calendar.
+An unofficial Jellyfin Advent Calendar plugin that adds a custom `/adventcalendar` page for TV episodes or a shuffled Movie Mode calendar.
 
 **Open a door each day and watch the matching episode directly in Jellyfin.**
 
@@ -12,6 +12,7 @@ An unofficial Jellyfin plugin that adds a custom `/adventcalendar` page and turn
 
 - [User guide](docs/USER_GUIDE.md): installation, configuration, access, and troubleshooting
 - [Release history](CHANGELOG.md): changes in each version
+- [Security policy](SECURITY.md): supported versions and private vulnerability reporting
 
 ## Project Note
 
@@ -29,16 +30,18 @@ This plugin was created 100% with AI.
 - Supports optional username allowlisting
 - Shows a friendly message when a visitor is not signed in
 - Includes an admin reset to clear remembered opened doors for all users
+- Includes Movie Mode: select a movie library or tag, assign a saved random order, and reveal a movie behind each door
+- Supports one optional custom calendar background that overrides automatic series or Movie Mode backdrops
 
 ## Current Status
 
-- Current release: `1.4.2.0`
+- Current release: `1.4.3.0`
 - Tested against Jellyfin `10.11.11`
 
 
 ## Quick Configuration
 
-Follow the [user guide](docs/USER_GUIDE.md) for the complete settings reference, including seasons, missing episodes, allowed users, fullscreen playback, and resets.
+Follow the [user guide](docs/USER_GUIDE.md) for the complete settings reference, including Series Mode, Movie Mode, custom backgrounds, unlock dates, missing episodes, allowed users, fullscreen playback, and resets.
 
 ## Install And Updates
 
