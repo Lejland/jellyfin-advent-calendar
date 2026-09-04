@@ -9,6 +9,22 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.4.9.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.9.0/jellyfin-plugin-advent-calendar_1.4.9.0.zip",
+        "checksum": "de47a7bd493d90434fa56863afddb8a5",
+        "timestamp": "2026-09-04T09:09:21Z",
+        "changelog": "Fixed Movie Mode background updates after opening doors, included Movie Mode status in authenticated state responses, and rendered custom backgrounds continuously behind unopened doors."
+      },
+      {
+        "version": "1.4.6.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.6.0/jellyfin-plugin-advent-calendar_1.4.6.0.zip",
+        "checksum": "540dab03f7d6742dacb0ad3b5e00419e",
+        "timestamp": "2026-09-04T08:15:11Z",
+        "changelog": "Fixed Movie Mode so every newly opened movie door updates the page backdrop immediately without requiring a page reload."
+      },
+      {
         "version": "1.4.5.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.5.0/jellyfin-plugin-advent-calendar_1.4.5.0.zip",

@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.4.9.0 - 2026-09-04
+
+Fixed:
+
+- render custom Movie Mode backgrounds as one continuous image behind transparent unopened doors instead of repeating the full image in every door
+
+## 1.4.8.0 - 2026-09-04
+
+Fixed:
+
+- include Movie Mode status in the authenticated calendar state so newly opened movie doors refresh the page backdrop immediately
+
+## 1.4.7.0 - 2026-09-04
+
+Fixed:
+
+- refresh the Movie Mode page background from the saved server state immediately after opening a movie door
+
+## 1.4.6.0 - 2026-09-04
+
+Fixed:
+
+- update the Movie Mode page background immediately for every newly opened movie door without a page reload
+
 ## 1.4.5.0 - 2026-09-04
 
 Fixed:

@@ -128,6 +128,7 @@ public sealed class AdventCalendarService
             HasAccess = true,
             AutoFullscreen = config.AutoFullscreen,
             DebugUnlockAllDoors = config.DebugUnlockAllDoors,
+            MovieModeEnabled = config.MovieModeEnabled,
             DoorCount = safeDoorCount,
             UnlockedDoorCount = unlockedDoorCount,
             OpenedDoorCount = openedDoors.Count,

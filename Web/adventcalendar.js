@@ -136,6 +136,10 @@
 
     function normalizeState(state) {
         const doors = valueOf(state, 'doors', 'Doors') || [];
+        const movieModeEnabled = valueOf(state, 'movieModeEnabled', 'MovieModeEnabled') === true;
+        const openedDoorCount = valueOf(state, 'openedDoorCount', 'OpenedDoorCount') || 0;
+        const backgroundImageUrl = valueOf(state, 'backgroundImageUrl', 'BackgroundImageUrl') || '';
+        const usesCustomBackground = backgroundImageUrl.indexOf('/adventcalendar/assets/custom-background') !== -1;
 
         return {
             title: valueOf(state, 'title', 'Title') || 'Advent Calendar',
@@ -146,11 +150,12 @@
             hasAccess: valueOf(state, 'hasAccess', 'HasAccess'),
             autoFullscreen: valueOf(state, 'autoFullscreen', 'AutoFullscreen'),
             debugUnlockAllDoors: valueOf(state, 'debugUnlockAllDoors', 'DebugUnlockAllDoors'),
-            movieModeEnabled: valueOf(state, 'movieModeEnabled', 'MovieModeEnabled') === true,
+            movieModeEnabled: movieModeEnabled,
             doorCount: valueOf(state, 'doorCount', 'DoorCount') || 0,
             unlockedDoorCount: valueOf(state, 'unlockedDoorCount', 'UnlockedDoorCount') || 0,
-            openedDoorCount: valueOf(state, 'openedDoorCount', 'OpenedDoorCount') || 0,
-            backgroundImageUrl: valueOf(state, 'backgroundImageUrl', 'BackgroundImageUrl') || '',
+            openedDoorCount: openedDoorCount,
+            backgroundImageUrl: backgroundImageUrl,
+            movieModeBackdropOpened: movieModeEnabled && (openedDoorCount > 0 || usesCustomBackground),
             message: valueOf(state, 'message', 'Message') || '',
             doors: doors.map(normalizeDoor),
             __accessToken: state.__accessToken || ''
@@ -654,12 +659,14 @@
                     }
 
                     applyOpenedState(node, resolvedDoor, state.__accessToken);
-                    if (state.movieModeEnabled && resolvedDoor.backdropUrl && (state.backgroundImageUrl || '').indexOf('/adventcalendar/assets/custom-background') === -1) {
+                    if (state.movieModeEnabled && (state.backgroundImageUrl || '').indexOf('/adventcalendar/assets/custom-background') === -1) {
                         const stateDoor = state.doors.find(function (item) { return item.doorNumber === resolvedDoor.doorNumber; });
                         if (stateDoor) { Object.assign(stateDoor, resolvedDoor); }
-                        state.movieModeEnabled = false;
-                        setBackground(resolvedDoor.backdropUrl, state.__accessToken);
-                        sampleBackgroundPalette(resolvedDoor.backdropUrl, state.__accessToken);
+                        const refreshedState = normalizeState(await fetchJson(adventBasePath + '/state', state.__accessToken));
+                        state.movieModeBackdropOpened = refreshedState.movieModeBackdropOpened;
+                        state.backgroundImageUrl = refreshedState.backgroundImageUrl;
+                        setBackground(state.backgroundImageUrl, state.__accessToken);
+                        sampleBackgroundPalette(state.backgroundImageUrl, state.__accessToken);
                     }
                     await playDoor(state, resolvedDoor);
                 } catch (error) {
@@ -674,7 +681,7 @@
 
         window.requestAnimationFrame(function () {
             closedDoorNodes.forEach(function (node) {
-                applyClosedDoorBackdrop(node, state.movieModeEnabled);
+                applyClosedDoorBackdrop(node, state.movieModeEnabled && !state.movieModeBackdropOpened);
             });
         });
     }
