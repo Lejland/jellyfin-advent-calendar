@@ -654,7 +654,7 @@
                     }
 
                     applyOpenedState(node, resolvedDoor, state.__accessToken);
-                    if (resolvedDoor.backdropUrl && (state.backgroundImageUrl || '').indexOf('/adventcalendar/assets/custom-background') === -1) {
+                    if (state.movieModeEnabled && resolvedDoor.backdropUrl && (state.backgroundImageUrl || '').indexOf('/adventcalendar/assets/custom-background') === -1) {
                         const stateDoor = state.doors.find(function (item) { return item.doorNumber === resolvedDoor.doorNumber; });
                         if (stateDoor) { Object.assign(stateDoor, resolvedDoor); }
                         state.movieModeEnabled = false;

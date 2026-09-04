@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.5.0 - 2026-09-04
+
+Fixed:
+
+- keep the configured Series Mode backdrop visible after opening an episode door; Movie Mode retains its latest-opened-movie backdrop behavior
+
 ## 1.4.4.0 - 2026-09-03
 
 Added and fixed:
