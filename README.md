@@ -18,6 +18,14 @@ An unofficial Jellyfin Advent Calendar plugin that adds a custom `/adventcalenda
 
 This plugin was created 100% with AI.
 
+## Demo
+
+<p align="center">
+  <img src="assets/advent-calendar-demo.gif" alt="Animated demonstration of the Jellyfin Advent Calendar Movie Mode" width="960">
+</p>
+
+A short walkthrough of opening Movie Mode doors and updating the calendar backdrop.
+
 
 ## What It Does
 
