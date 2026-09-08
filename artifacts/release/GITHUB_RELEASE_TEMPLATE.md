@@ -2,7 +2,7 @@
 
 ## Title
 
-`Advent Calendar 1.4.11.0`
+`Advent Calendar 1.5.0.0`
 
 ## Release Notes
 
@@ -13,6 +13,7 @@ Advent Calendar is an unofficial Jellyfin plugin that turns TV episodes or selec
 - Administrator-only configuration, reset, reshuffle, and background-management endpoints
 - Safe custom background file serving
 - Movie Mode with a saved random movie order
+- Strict tag and library validation for saved Movie Mode assignments
 - Custom backgrounds that override automatic Series Mode and Movie Mode backdrops
 - Movie Mode mystery artwork renders continuously behind transparent closed doors
 - Series Mode retains the selected series backdrop when an episode door is opened
@@ -38,7 +39,7 @@ Advent Calendar is an unofficial Jellyfin plugin that turns TV episodes or selec
 
 Manual install:
 
-1. Download `jellyfin-plugin-advent-calendar_1.4.11.0.zip`
+1. Download `jellyfin-plugin-advent-calendar_1.5.0.0.zip`
 2. Extract into Jellyfin plugin folder:
    `.../plugins/AdventCalendar/`
 3. Restart Jellyfin
@@ -51,7 +52,7 @@ Third-party repository install:
 
 ### Files
 
-- `jellyfin-plugin-advent-calendar_1.4.11.0.zip`
+- `jellyfin-plugin-advent-calendar_1.5.0.0.zip`
 - `manifest.json`
 
 ### Checksum

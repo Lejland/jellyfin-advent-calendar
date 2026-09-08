@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0.0 - 2026-09-08
+
+Fixed and improved:
+
+- enforce the selected Movie Mode tag or library against saved movie assignments, automatically replacing stale unrelated movies
+- clear the remembered Movie Mode backdrop when assignments are reshuffled or repaired
+- trim tag names before matching so tags selected in the admin panel match consistently
+
 ## 1.4.11.0 - 2026-09-08
 
 Fixed:

@@ -384,22 +384,43 @@ public sealed class AdventCalendarService
         var config = Plugin.Instance.Configuration;
         var movies = GetConfiguredMovies(config).OrderBy(_ => Random.Shared.Next()).ToList();
         config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(movies.Select(movie => movie.Id.ToString("N")).ToArray());
+        config.LastOpenedMovieDoorByUserJson = string.Empty;
         Plugin.Instance.SaveConfiguration();
         return movies.Count;
     }
 
     private ResolvedCalendar ResolveMovieCalendar(PluginConfiguration config, int doorCount, string pathBase)
     {
-        var ids = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
-        if (ids.Count == 0)
+        var sourceMovies = GetConfiguredMovies(config);
+        if (sourceMovies.Count == 0)
         {
-            return new ResolvedCalendar { IsConfigured = false, SeriesTitle = "Movie Calendar", SeasonLabel = "Movie Mode", Message = "Save Movie Mode or use Reshuffle movies to assign the selected movies to doors." };
+            var sourceName = string.Equals(config.MovieSourceType, "tag", StringComparison.OrdinalIgnoreCase)
+                ? $"tag \"{(config.MovieTag ?? string.Empty).Trim()}\""
+                : "selected movie library";
+            return new ResolvedCalendar { IsConfigured = false, SeriesTitle = "Movie Calendar", SeasonLabel = "Movie Mode", Message = $"No movies were found for the {sourceName}." };
+        }
+
+        var sourceMovieIds = sourceMovies
+            .Select(movie => movie.Id.ToString("N"))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var ids = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
+        if (ids.Count == 0 || ids.Any(id => !sourceMovieIds.Contains(id)))
+        {
+            ids = sourceMovies
+                .OrderBy(_ => Random.Shared.Next())
+                .Select(movie => movie.Id.ToString("N"))
+                .ToArray();
+            config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(ids);
+            config.LastOpenedMovieDoorByUserJson = string.Empty;
+            Plugin.Instance.SaveConfiguration();
         }
 
         var movies = new Dictionary<int, BaseItem>();
         for (var index = 0; index < ids.Count && index < doorCount; index++)
         {
-            if (TryGetItem(ids[index], out var movie) && string.Equals(movie.GetType().Name, "Movie", StringComparison.OrdinalIgnoreCase))
+            if (sourceMovieIds.Contains(ids[index])
+                && TryGetItem(ids[index], out var movie)
+                && string.Equals(movie.GetType().Name, "Movie", StringComparison.OrdinalIgnoreCase))
             {
                 movies[index + 1] = movie;
             }
@@ -413,7 +434,10 @@ public sealed class AdventCalendarService
         var movies = GetAllMovies();
         if (string.Equals(config.MovieSourceType, "tag", StringComparison.OrdinalIgnoreCase))
         {
-            return movies.Where(movie => movie.Tags?.Contains(config.MovieTag, StringComparer.OrdinalIgnoreCase) == true).ToList();
+            var selectedTag = (config.MovieTag ?? string.Empty).Trim();
+            return string.IsNullOrWhiteSpace(selectedTag)
+                ? []
+                : movies.Where(movie => movie.Tags?.Any(tag => string.Equals(tag?.Trim(), selectedTag, StringComparison.OrdinalIgnoreCase)) == true).ToList();
         }
 
         return TryParseGuid(config.MovieLibraryId, out var libraryId)
