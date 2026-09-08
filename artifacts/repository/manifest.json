@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.5.4.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.4.0/jellyfin-plugin-advent-calendar_1.5.4.0.zip",
+        "checksum": "789b24c0fdc9adf1b08fea11a1d18568",
+        "timestamp": "2026-09-08T20:50:05Z",
+        "changelog": "Show assigned Movie Mode count after Save-triggered assignments and Reshuffle movies, with compact red in-field clear icons for Movie library and Movie tag selections."
+      },
+      {
         "version": "1.5.3.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.3.0/jellyfin-plugin-advent-calendar_1.5.3.0.zip",

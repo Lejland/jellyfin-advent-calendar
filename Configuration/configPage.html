@@ -17,6 +17,38 @@
         #AdventCalendarConfigPage .advent-button-reset:hover {
             background-color: #a61f1f;
         }
+
+        #AdventCalendarConfigPage .advent-select-with-clear {
+            position: relative;
+        }
+
+        #AdventCalendarConfigPage .advent-select-with-clear select {
+            width: 100%;
+            padding-right: 2.8rem;
+        }
+
+        #AdventCalendarConfigPage .advent-select-clear {
+            position: absolute;
+            top: 50%;
+            right: 0.45rem;
+            width: 1.65rem;
+            height: 1.65rem;
+            min-width: 1.65rem;
+            margin: 0;
+            padding: 0;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 50%;
+            background: #c62828;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        #AdventCalendarConfigPage .advent-select-clear:hover {
+            background: #a61f1f;
+        }
     </style>
     <div data-role="content">
         <div class="content-primary">
@@ -49,13 +81,17 @@
                         </div>
                         <div class="inputContainer" id="movieLibraryContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieLibrary">Movie library</label>
-                            <select id="selMovieLibrary" is="emby-select"></select>
-                            <button id="btnClearMovieLibrary" is="emby-button" type="button" class="raised">Clear library selection</button>
+                            <div class="advent-select-with-clear">
+                                <select id="selMovieLibrary" is="emby-select"></select>
+                                <button id="btnClearMovieLibrary" type="button" class="advent-select-clear" title="Clear movie library selection" aria-label="Clear movie library selection">&times;</button>
+                            </div>
                         </div>
                         <div class="inputContainer is-hidden" id="movieTagContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieTag">Movie tag</label>
-                            <select id="selMovieTag" is="emby-select"></select>
-                            <button id="btnClearMovieTag" is="emby-button" type="button" class="raised">Clear tag selection</button>
+                            <div class="advent-select-with-clear">
+                                <select id="selMovieTag" is="emby-select"></select>
+                                <button id="btnClearMovieTag" type="button" class="advent-select-clear" title="Clear movie tag selection" aria-label="Clear movie tag selection">&times;</button>
+                            </div>
                         </div>
                         <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
                         <div id="movieModeStatus" class="fieldDescription"></div>
@@ -552,7 +588,8 @@
                         if (!response.ok) { throw new Error('Could not upload the background image.'); }
                     }
                     if (shouldReshuffleMovies) {
-                        await postJson('/adventcalendar/admin/movies/reshuffle');
+                        const result = await postJson("/adventcalendar/admin/movies/reshuffle");
+                        page.querySelector("#movieModeStatus").textContent = result.count + " movies assigned to calendar doors.";
                     }
                     Dashboard.processPluginConfigurationUpdateResult();
                 } catch (error) {

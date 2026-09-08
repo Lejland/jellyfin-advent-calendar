@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.4.0 - 2026-09-08
+
+Changed:
+
+- show the assigned Movie Mode count after a Save-triggered assignment as well as after Reshuffle movies
+- replace full-width Movie library and Movie tag clear buttons with compact red clear icons inside each selector
+
 ## 1.5.3.0 - 2026-09-08
 
 Changed:
