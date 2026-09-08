@@ -138,13 +138,6 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [Authorize(Policy = "RequiresElevation")]
-    [HttpGet("/adventcalendar/admin/movies/count")]
-    public IActionResult GetMovieSourceCount([FromQuery] string? sourceType, [FromQuery] string? libraryId, [FromQuery] string? tag)
-    {
-        return Ok(new { count = _service.GetMovieSourceCount(sourceType, libraryId, tag) });
-    }
-
-    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/movies/libraries")]
     public IActionResult GetMovieLibraries()
     {

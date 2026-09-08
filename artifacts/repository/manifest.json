@@ -9,28 +9,12 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
-        "version": "1.5.2.0",
+        "version": "1.5.3.0",
         "targetAbi": "10.11.0.0",
-        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.2.0/jellyfin-plugin-advent-calendar_1.5.2.0.zip",
-        "checksum": "d2d82773be3b4a0c9f037c0344c2c19d",
-        "timestamp": "2026-09-08T20:04:35Z",
-        "changelog": "Use Jellyfin's native movie tag query for Movie Mode selections, matching Jellyfin's own tag-filter semantics while preserving per-user Movie Mode backdrops when valid selected movies move to a new door."
-      },
-      {
-        "version": "1.5.1.0",
-        "targetAbi": "10.11.0.0",
-        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.1.0/jellyfin-plugin-advent-calendar_1.5.1.0.zip",
-        "checksum": "fb40463a61f26f83a105eef78ddb14cc",
-        "timestamp": "2026-09-08T16:41:40Z",
-        "changelog": "Show the live matching Movie Mode count for the selected tag or library, and preserve each user's current movie backdrop when reshuffling changes that movie's door number."
-      },
-      {
-        "version": "1.5.0.0",
-        "targetAbi": "10.11.0.0",
-        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.0.0/jellyfin-plugin-advent-calendar_1.5.0.0.zip",
-        "checksum": "060b13cbd21860a04190dc1df3557a9f",
-        "timestamp": "2026-09-08T16:18:40Z",
-        "changelog": "Fixed Movie Mode tag and library selection by validating saved assignments against the selected source, replacing stale unrelated movies, and clearing old Movie Mode backdrops after a reshuffle."
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.3.0/jellyfin-plugin-advent-calendar_1.5.3.0.zip",
+        "checksum": "f75fb40a41244a5025133f24be57ff17",
+        "timestamp": "2026-09-08T20:33:59Z",
+        "changelog": "Restore the proven 1.4.11.0 Movie Mode behavior, update the assigned-movie count only after Reshuffle movies, and add individual clear controls for Movie library and Movie tag selections."
       },
       {
         "version": "1.4.11.0",

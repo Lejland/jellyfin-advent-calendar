@@ -1,27 +1,12 @@
 # Changelog
 
-## 1.5.2.0 - 2026-09-08
+## 1.5.3.0 - 2026-09-08
 
-Fixed:
+Changed:
 
-- use Jellyfin's native movie tag query for Movie Mode selections, matching the server's own tag-filter semantics
-- retain the per-user Movie Mode backdrop when a selected movie moves to a different door after an assignment repair
-
-## 1.5.1.0 - 2026-09-08
-
-Fixed and improved:
-
-- show the live matching movie count for the selected Movie Mode tag or library in the admin panel
-- preserve each user's current Movie Mode backdrop when reshuffling moves that movie to a new door
-- preserve valid remembered Movie Mode backdrops when stale assignments are repaired
-
-## 1.5.0.0 - 2026-09-08
-
-Fixed and improved:
-
-- enforce the selected Movie Mode tag or library against saved movie assignments, automatically replacing stale unrelated movies
-- clear the remembered Movie Mode backdrop when assignments are reshuffled or repaired
-- trim tag names before matching so tags selected in the admin panel match consistently
+- restore the proven 1.4.11.0 Movie Mode behavior
+- show assigned-movie count only after the administrator uses Reshuffle movies
+- add separate clear controls for Movie library and Movie tag selections
 
 ## 1.4.11.0 - 2026-09-08
 

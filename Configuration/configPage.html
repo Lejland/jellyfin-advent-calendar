@@ -50,10 +50,12 @@
                         <div class="inputContainer" id="movieLibraryContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieLibrary">Movie library</label>
                             <select id="selMovieLibrary" is="emby-select"></select>
+                            <button id="btnClearMovieLibrary" is="emby-button" type="button" class="raised">Clear library selection</button>
                         </div>
                         <div class="inputContainer is-hidden" id="movieTagContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieTag">Movie tag</label>
                             <select id="selMovieTag" is="emby-select"></select>
+                            <button id="btnClearMovieTag" is="emby-button" type="button" class="raised">Clear tag selection</button>
                         </div>
                         <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
                         <div id="movieModeStatus" class="fieldDescription"></div>
@@ -155,24 +157,12 @@
                 page.querySelector('#movieTagContainer').classList.toggle('is-hidden', !byTag);
             }
 
-            async function refreshMovieSourceCount() {
-                const sourceType = page.querySelector("#selMovieSourceType").value;
-                const libraryId = page.querySelector("#selMovieLibrary").value;
-                const tag = page.querySelector("#selMovieTag").value;
-                const query = new URLSearchParams({ sourceType: sourceType, libraryId: libraryId, tag: tag });
-                const result = await fetchJson("/adventcalendar/admin/movies/count?" + query.toString());
-                const sourceLabel = sourceType === "tag"
-                    ? "tag \"" + (tag || "").trim() + "\""
-                    : "selected movie library";
-                page.querySelector("#movieModeStatus").textContent = result.count + " movies available from " + sourceLabel + ".";
-            }
-
             async function loadMovieSources(config) {
                 const [libraries, tags] = await Promise.all([fetchJson('/adventcalendar/admin/movies/libraries'), fetchJson('/adventcalendar/admin/movies/tags')]);
                 const librarySelect = page.querySelector('#selMovieLibrary');
                 const tagSelect = page.querySelector('#selMovieTag');
-                librarySelect.innerHTML = libraries.map(function (item) { return '<option value="' + item.id + '">' + item.name + '</option>'; }).join('');
-                tagSelect.innerHTML = tags.map(function (tag) { return '<option value="' + tag + '">' + tag + '</option>'; }).join('');
+                librarySelect.innerHTML = '<option value="">No movie library selected</option>' + libraries.map(function (item) { return '<option value="' + item.id + '">' + item.name + '</option>'; }).join('');
+                tagSelect.innerHTML = '<option value="">No movie tag selected</option>' + tags.map(function (tag) { return '<option value="' + tag + '">' + tag + '</option>'; }).join('');
                 page.querySelector('#selMovieSourceType').value = getConfigValue(config, 'movieSourceType', 'MovieSourceType', 'library');
                 librarySelect.value = getConfigValue(config, 'movieLibraryId', 'MovieLibraryId', '');
                 tagSelect.value = getConfigValue(config, 'movieTag', 'MovieTag', '');
@@ -441,7 +431,6 @@
                 page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
                 await loadMovieSources(config);
                 toggleMovieMode();
-                await refreshMovieSourceCount();
 
                 await loadSeriesFromConfig(config);
                 await searchSeries(seriesSearchInput.value.trim());
@@ -464,16 +453,15 @@
             });
 
             page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
-            page.querySelector('#selMovieSourceType').addEventListener('change', function () {
-                toggleMovieMode();
-                refreshMovieSourceCount().catch(function () {});
+            page.querySelector('#btnClearMovieLibrary').addEventListener('click', function () {
+                page.querySelector('#selMovieLibrary').value = '';
+                page.querySelector('#movieModeStatus').textContent = 'Movie library selection cleared. Click Save to apply.';
             });
-            page.querySelector('#selMovieLibrary').addEventListener('change', function () {
-                refreshMovieSourceCount().catch(function () {});
+            page.querySelector('#btnClearMovieTag').addEventListener('click', function () {
+                page.querySelector('#selMovieTag').value = '';
+                page.querySelector('#movieModeStatus').textContent = 'Movie tag selection cleared. Click Save to apply.';
             });
-            page.querySelector('#selMovieTag').addEventListener('change', function () {
-                refreshMovieSourceCount().catch(function () {});
-            });
+            page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
             page.querySelector('#btnReshuffleMovies').addEventListener('click', async function () {
                 const result = await postJson('/adventcalendar/admin/movies/reshuffle');
                 page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
@@ -564,10 +552,7 @@
                         if (!response.ok) { throw new Error('Could not upload the background image.'); }
                     }
                     if (shouldReshuffleMovies) {
-                        const result = await postJson('/adventcalendar/admin/movies/reshuffle');
-                        page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
-                    } else if (movieModeEnabled) {
-                        await refreshMovieSourceCount();
+                        await postJson('/adventcalendar/admin/movies/reshuffle');
                     }
                     Dashboard.processPluginConfigurationUpdateResult();
                 } catch (error) {
