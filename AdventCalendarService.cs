@@ -382,11 +382,18 @@ public sealed class AdventCalendarService
     public int ReshuffleMovies()
     {
         var config = Plugin.Instance.Configuration;
+        var previousIds = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
         var movies = GetConfiguredMovies(config).OrderBy(_ => Random.Shared.Next()).ToList();
-        config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(movies.Select(movie => movie.Id.ToString("N")).ToArray());
-        config.LastOpenedMovieDoorByUserJson = string.Empty;
+        var ids = movies.Select(movie => movie.Id.ToString("N")).ToArray();
+        config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(ids);
+        RemapLastOpenedMovieDoors(config, previousIds, ids);
         Plugin.Instance.SaveConfiguration();
         return movies.Count;
+    }
+
+    public int GetMovieSourceCount(string? sourceType, string? libraryId, string? tag)
+    {
+        return GetConfiguredMovies(sourceType, libraryId, tag).Count;
     }
 
     private ResolvedCalendar ResolveMovieCalendar(PluginConfiguration config, int doorCount, string pathBase)
@@ -406,12 +413,13 @@ public sealed class AdventCalendarService
         var ids = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
         if (ids.Count == 0 || ids.Any(id => !sourceMovieIds.Contains(id)))
         {
-            ids = sourceMovies
+            var repairedIds = sourceMovies
                 .OrderBy(_ => Random.Shared.Next())
                 .Select(movie => movie.Id.ToString("N"))
                 .ToArray();
-            config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(ids);
-            config.LastOpenedMovieDoorByUserJson = string.Empty;
+            config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(repairedIds);
+            RemapLastOpenedMovieDoors(config, ids, repairedIds);
+            ids = repairedIds;
             Plugin.Instance.SaveConfiguration();
         }
 
@@ -431,17 +439,22 @@ public sealed class AdventCalendarService
 
     private IReadOnlyList<BaseItem> GetConfiguredMovies(PluginConfiguration config)
     {
+        return GetConfiguredMovies(config.MovieSourceType, config.MovieLibraryId, config.MovieTag);
+    }
+
+    private IReadOnlyList<BaseItem> GetConfiguredMovies(string? sourceType, string? libraryId, string? tag)
+    {
         var movies = GetAllMovies();
-        if (string.Equals(config.MovieSourceType, "tag", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(sourceType, "tag", StringComparison.OrdinalIgnoreCase))
         {
-            var selectedTag = (config.MovieTag ?? string.Empty).Trim();
+            var selectedTag = (tag ?? string.Empty).Trim();
             return string.IsNullOrWhiteSpace(selectedTag)
                 ? []
                 : movies.Where(movie => movie.Tags?.Any(tag => string.Equals(tag?.Trim(), selectedTag, StringComparison.OrdinalIgnoreCase)) == true).ToList();
         }
 
-        return TryParseGuid(config.MovieLibraryId, out var libraryId)
-            ? movies.Where(movie => movie.GetAncestorIds().Contains(libraryId)).ToList()
+        return TryParseGuid(libraryId ?? string.Empty, out var parsedLibraryId)
+            ? movies.Where(movie => movie.GetAncestorIds().Contains(parsedLibraryId)).ToList()
             : [];
     }
 
@@ -876,6 +889,38 @@ public sealed class AdventCalendarService
         state[NormalizeUsernameKey(currentUsername)] = doorNumber;
         config.LastOpenedMovieDoorByUserJson = JsonSerializer.Serialize(state);
         Plugin.Instance.SaveConfiguration();
+    }
+
+    private static void RemapLastOpenedMovieDoors(PluginConfiguration config, IReadOnlyList<string> previousIds, IReadOnlyList<string> currentIds)
+    {
+        if (previousIds.Count == 0 || currentIds.Count == 0 || string.IsNullOrWhiteSpace(config.LastOpenedMovieDoorByUserJson))
+        {
+            return;
+        }
+
+        Dictionary<string, int> previousState;
+        try { previousState = JsonSerializer.Deserialize<Dictionary<string, int>>(config.LastOpenedMovieDoorByUserJson) ?? []; }
+        catch { return; }
+
+        var currentDoorByMovieId = currentIds
+            .Select((movieId, index) => new { movieId, doorNumber = index + 1 })
+            .ToDictionary(item => item.movieId, item => item.doorNumber, StringComparer.OrdinalIgnoreCase);
+        var remappedState = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (username, previousDoor) in previousState)
+        {
+            if (previousDoor < 1 || previousDoor > previousIds.Count)
+            {
+                continue;
+            }
+
+            if (currentDoorByMovieId.TryGetValue(previousIds[previousDoor - 1], out var currentDoor))
+            {
+                remappedState[username] = currentDoor;
+            }
+        }
+
+        config.LastOpenedMovieDoorByUserJson = JsonSerializer.Serialize(remappedState);
     }
 
     private static string NormalizeUsernameKey(string? currentUsername)

@@ -155,6 +155,18 @@
                 page.querySelector('#movieTagContainer').classList.toggle('is-hidden', !byTag);
             }
 
+            async function refreshMovieSourceCount() {
+                const sourceType = page.querySelector("#selMovieSourceType").value;
+                const libraryId = page.querySelector("#selMovieLibrary").value;
+                const tag = page.querySelector("#selMovieTag").value;
+                const query = new URLSearchParams({ sourceType: sourceType, libraryId: libraryId, tag: tag });
+                const result = await fetchJson("/adventcalendar/admin/movies/count?" + query.toString());
+                const sourceLabel = sourceType === "tag"
+                    ? "tag \"" + (tag || "").trim() + "\""
+                    : "selected movie library";
+                page.querySelector("#movieModeStatus").textContent = result.count + " movies available from " + sourceLabel + ".";
+            }
+
             async function loadMovieSources(config) {
                 const [libraries, tags] = await Promise.all([fetchJson('/adventcalendar/admin/movies/libraries'), fetchJson('/adventcalendar/admin/movies/tags')]);
                 const librarySelect = page.querySelector('#selMovieLibrary');
@@ -429,6 +441,7 @@
                 page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
                 await loadMovieSources(config);
                 toggleMovieMode();
+                await refreshMovieSourceCount();
 
                 await loadSeriesFromConfig(config);
                 await searchSeries(seriesSearchInput.value.trim());
@@ -451,7 +464,16 @@
             });
 
             page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
-            page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
+            page.querySelector('#selMovieSourceType').addEventListener('change', function () {
+                toggleMovieMode();
+                refreshMovieSourceCount().catch(function () {});
+            });
+            page.querySelector('#selMovieLibrary').addEventListener('change', function () {
+                refreshMovieSourceCount().catch(function () {});
+            });
+            page.querySelector('#selMovieTag').addEventListener('change', function () {
+                refreshMovieSourceCount().catch(function () {});
+            });
             page.querySelector('#btnReshuffleMovies').addEventListener('click', async function () {
                 const result = await postJson('/adventcalendar/admin/movies/reshuffle');
                 page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
@@ -544,6 +566,8 @@
                     if (shouldReshuffleMovies) {
                         const result = await postJson('/adventcalendar/admin/movies/reshuffle');
                         page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
+                    } else if (movieModeEnabled) {
+                        await refreshMovieSourceCount();
                     }
                     Dashboard.processPluginConfigurationUpdateResult();
                 } catch (error) {
