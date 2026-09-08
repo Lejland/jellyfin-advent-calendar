@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.5.2.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.2.0/jellyfin-plugin-advent-calendar_1.5.2.0.zip",
+        "checksum": "d2d82773be3b4a0c9f037c0344c2c19d",
+        "timestamp": "2026-09-08T20:04:35Z",
+        "changelog": "Use Jellyfin's native movie tag query for Movie Mode selections, matching Jellyfin's own tag-filter semantics while preserving per-user Movie Mode backdrops when valid selected movies move to a new door."
+      },
+      {
         "version": "1.5.1.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.1.0/jellyfin-plugin-advent-calendar_1.5.1.0.zip",

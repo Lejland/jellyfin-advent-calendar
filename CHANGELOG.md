@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.2.0 - 2026-09-08
+
+Fixed:
+
+- use Jellyfin's native movie tag query for Movie Mode selections, matching the server's own tag-filter semantics
+- retain the per-user Movie Mode backdrop when a selected movie moves to a different door after an assignment repair
+
 ## 1.5.1.0 - 2026-09-08
 
 Fixed and improved:

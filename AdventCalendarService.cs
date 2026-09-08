@@ -444,18 +444,28 @@ public sealed class AdventCalendarService
 
     private IReadOnlyList<BaseItem> GetConfiguredMovies(string? sourceType, string? libraryId, string? tag)
     {
-        var movies = GetAllMovies();
         if (string.Equals(sourceType, "tag", StringComparison.OrdinalIgnoreCase))
         {
             var selectedTag = (tag ?? string.Empty).Trim();
-            return string.IsNullOrWhiteSpace(selectedTag)
-                ? []
-                : movies.Where(movie => movie.Tags?.Any(tag => string.Equals(tag?.Trim(), selectedTag, StringComparison.OrdinalIgnoreCase)) == true).ToList();
+            return string.IsNullOrWhiteSpace(selectedTag) ? [] : GetMoviesByTag(selectedTag);
         }
 
+        var movies = GetAllMovies();
         return TryParseGuid(libraryId ?? string.Empty, out var parsedLibraryId)
             ? movies.Where(movie => movie.GetAncestorIds().Contains(parsedLibraryId)).ToList()
             : [];
+    }
+
+    private IReadOnlyList<BaseItem> GetMoviesByTag(string tag)
+    {
+        return _libraryManager.GetItemList(new InternalItemsQuery
+        {
+            Recursive = true,
+            IncludeItemTypes = [BaseItemKind.Movie],
+            Tags = [tag]
+        })
+            .OrderBy(movie => movie.SortName ?? movie.Name)
+            .ToList();
     }
 
     private IReadOnlyList<BaseItem> GetAllMovies()
