@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.11.0 - 2026-09-08
+
+Fixed:
+
+- render the Movie Mode mystery artwork once as a continuous background behind transparent closed doors instead of repeating it inside every door
+
 ## 1.4.9.0 - 2026-09-04
 
 Fixed:

@@ -681,7 +681,7 @@
 
         window.requestAnimationFrame(function () {
             closedDoorNodes.forEach(function (node) {
-                applyClosedDoorBackdrop(node, state.movieModeEnabled && !state.movieModeBackdropOpened);
+                applyClosedDoorBackdrop(node, false);
             });
         });
     }

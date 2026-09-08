@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.4.11.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.11.0/jellyfin-plugin-advent-calendar_1.4.11.0.zip",
+        "checksum": "46a4614085b2af90074e26d04bc68992",
+        "timestamp": "2026-09-08T15:43:08Z",
+        "changelog": "Fixed Movie Mode mystery artwork so it renders once as a continuous background behind transparent closed doors instead of repeating inside every door."
+      },
+      {
         "version": "1.4.9.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.4.9.0/jellyfin-plugin-advent-calendar_1.4.9.0.zip",
