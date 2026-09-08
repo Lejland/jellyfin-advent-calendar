@@ -411,14 +411,34 @@ public sealed class AdventCalendarService
     private IReadOnlyList<BaseItem> GetConfiguredMovies(PluginConfiguration config)
     {
         var movies = GetAllMovies();
-        if (string.Equals(config.MovieSourceType, "tag", StringComparison.OrdinalIgnoreCase))
+        var sourceType = config.MovieSourceType ?? string.Empty;
+        var usesTag = string.Equals(sourceType, "tag", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(sourceType, "libraryTag", StringComparison.OrdinalIgnoreCase);
+        var usesLibrary = string.Equals(sourceType, "library", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(sourceType, "libraryTag", StringComparison.OrdinalIgnoreCase);
+
+        if (usesTag)
         {
-            return movies.Where(movie => movie.Tags?.Contains(config.MovieTag, StringComparer.OrdinalIgnoreCase) == true).ToList();
+            var selectedTag = (config.MovieTag ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(selectedTag))
+            {
+                return [];
+            }
+
+            movies = movies.Where(movie => movie.Tags?.Contains(selectedTag, StringComparer.OrdinalIgnoreCase) == true).ToList();
         }
 
-        return TryParseGuid(config.MovieLibraryId, out var libraryId)
-            ? movies.Where(movie => movie.GetAncestorIds().Contains(libraryId)).ToList()
-            : [];
+        if (usesLibrary)
+        {
+            if (!TryParseGuid(config.MovieLibraryId, out var libraryId))
+            {
+                return [];
+            }
+
+            movies = movies.Where(movie => movie.GetAncestorIds().Contains(libraryId)).ToList();
+        }
+
+        return movies;
     }
 
     private IReadOnlyList<BaseItem> GetAllMovies()

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.5.0 - 2026-09-08
+
+Added and improved:
+
+- add a Movie library and tag source that only assigns movies matching both selections
+- add clear Movie Mode assignment status, saved-count summary, and actionable reshuffle errors
+- prevent reshuffling an unsaved Movie Mode source selection
+
 ## 1.5.4.0 - 2026-09-08
 
 Changed:

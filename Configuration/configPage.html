@@ -49,6 +49,20 @@
         #AdventCalendarConfigPage .advent-select-clear:hover {
             background: #a61f1f;
         }
+
+        #AdventCalendarConfigPage .advent-movie-status {
+            min-height: 1.35rem;
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-left: 3px solid #248a3d;
+            background: rgba(36, 138, 61, 0.1);
+        }
+
+        #AdventCalendarConfigPage .advent-movie-status.is-error {
+            border-left-color: #c62828;
+            background: rgba(198, 40, 40, 0.1);
+            color: #f0a0a0;
+        }
     </style>
     <div data-role="content">
         <div class="content-primary">
@@ -77,7 +91,8 @@
                         <h3>Movie Mode</h3>
                         <div class="inputContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieSourceType">Movie source</label>
-                            <select id="selMovieSourceType" is="emby-select"><option value="library">Movie library</option><option value="tag">Tag</option></select>
+                            <select id="selMovieSourceType" is="emby-select"><option value="library">Movie library</option><option value="tag">Tag</option><option value="libraryTag">Movie library and tag</option></select>
+                            <div class="fieldDescription">Use a library, a tag across all movie libraries, or both together.</div>
                         </div>
                         <div class="inputContainer" id="movieLibraryContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieLibrary">Movie library</label>
@@ -94,7 +109,8 @@
                             </div>
                         </div>
                         <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
-                        <div id="movieModeStatus" class="fieldDescription"></div>
+                        <div id="movieModeStatus" class="fieldDescription advent-movie-status" role="status" aria-live="polite"></div>
+                        <div class="fieldDescription">Save source changes first. Reshuffle keeps the selected source and creates a new door order.</div>
                     </div>
                     <div id="seriesModeSettings">
                     <div class="inputContainer">
@@ -185,12 +201,52 @@
             let customBackgroundImageData = '';
 
             function toggleMovieMode() {
-                const enabled = page.querySelector('#chkMovieModeEnabled').checked;
-                page.querySelector('#movieModeSettings').classList.toggle('is-hidden', !enabled);
-                page.querySelector('#seriesModeSettings').classList.toggle('is-hidden', enabled);
-                const byTag = page.querySelector('#selMovieSourceType').value === 'tag';
-                page.querySelector('#movieLibraryContainer').classList.toggle('is-hidden', byTag);
-                page.querySelector('#movieTagContainer').classList.toggle('is-hidden', !byTag);
+                const enabled = page.querySelector("#chkMovieModeEnabled").checked;
+                const sourceType = page.querySelector("#selMovieSourceType").value;
+                page.querySelector("#movieModeSettings").classList.toggle("is-hidden", !enabled);
+                page.querySelector("#seriesModeSettings").classList.toggle("is-hidden", enabled);
+                page.querySelector("#movieLibraryContainer").classList.toggle("is-hidden", sourceType === "tag");
+                page.querySelector("#movieTagContainer").classList.toggle("is-hidden", sourceType === "library");
+            }
+
+            function setMovieModeStatus(text, isError) {
+                const status = page.querySelector("#movieModeStatus");
+                status.textContent = text || "";
+                status.classList.toggle("is-error", isError === true);
+            }
+
+            function getMovieAssignmentCount(config) {
+                try {
+                    const assignments = JSON.parse(getConfigValue(config, "movieDoorAssignmentsJson", "MovieDoorAssignmentsJson", "[]"));
+                    return Array.isArray(assignments) ? assignments.length : 0;
+                } catch (error) {
+                    return 0;
+                }
+            }
+
+            function showSavedMovieModeStatus(config) {
+                const count = getMovieAssignmentCount(config);
+                setMovieModeStatus(count > 0
+                    ? count + " movies assigned to calendar doors. Use Reshuffle movies to create a new order."
+                    : "No movies are assigned yet. Choose a source, click Save, then use Reshuffle movies when you want a new order.");
+            }
+
+            function hasUnsavedMovieSourceChanges(config) {
+                return getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== page.querySelector("#selMovieSourceType").value
+                    || getConfigValue(config, "movieLibraryId", "MovieLibraryId", "") !== page.querySelector("#selMovieLibrary").value
+                    || getConfigValue(config, "movieTag", "MovieTag", "") !== page.querySelector("#selMovieTag").value;
+            }
+
+            async function reshuffleMovies() {
+                setMovieModeStatus("Creating a new movie door order...");
+                const result = await postJson("/adventcalendar/admin/movies/reshuffle", "Could not reshuffle movies.");
+                const count = Number(result.count !== undefined ? result.count : result.Count);
+                if (!Number.isFinite(count)) {
+                    throw new Error("The server did not return the assigned movie count.");
+                }
+
+                setMovieModeStatus(count + " movies assigned to calendar doors.");
+                return count;
             }
 
             async function loadMovieSources(config) {
@@ -274,20 +330,20 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('The request failed.');
+                    throw new Error("The request failed.");
                 }
 
                 return response.json();
             }
 
-            async function postJson(url) {
+            async function postJson(url, errorMessage) {
                 const response = await fetch(buildServerUrl(url), {
-                    method: 'POST',
+                    method: "POST",
                     headers: authorizationHeaders()
                 });
 
                 if (!response.ok) {
-                    throw new Error('The reset request failed.');
+                    throw new Error(errorMessage || "The request failed.");
                 }
 
                 return response.json();
@@ -467,6 +523,7 @@
                 page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
                 await loadMovieSources(config);
                 toggleMovieMode();
+                showSavedMovieModeStatus(config);
 
                 await loadSeriesFromConfig(config);
                 await searchSeries(seriesSearchInput.value.trim());
@@ -488,19 +545,39 @@
                 page.querySelector('#customBackgroundStatus').textContent = 'Automatic backgrounds are active.';
             });
 
-            page.querySelector('#chkMovieModeEnabled').addEventListener('change', toggleMovieMode);
-            page.querySelector('#btnClearMovieLibrary').addEventListener('click', function () {
-                page.querySelector('#selMovieLibrary').value = '';
-                page.querySelector('#movieModeStatus').textContent = 'Movie library selection cleared. Click Save to apply.';
+            page.querySelector("#chkMovieModeEnabled").addEventListener("change", function () {
+                toggleMovieMode();
+                setMovieModeStatus("Choose a source, then click Save to assign movies.");
             });
-            page.querySelector('#btnClearMovieTag').addEventListener('click', function () {
-                page.querySelector('#selMovieTag').value = '';
-                page.querySelector('#movieModeStatus').textContent = 'Movie tag selection cleared. Click Save to apply.';
+            page.querySelector("#btnClearMovieLibrary").addEventListener("click", function () {
+                page.querySelector("#selMovieLibrary").value = "";
+                setMovieModeStatus("Movie library selection cleared. Click Save to apply.");
             });
-            page.querySelector('#selMovieSourceType').addEventListener('change', toggleMovieMode);
-            page.querySelector('#btnReshuffleMovies').addEventListener('click', async function () {
-                const result = await postJson('/adventcalendar/admin/movies/reshuffle');
-                page.querySelector('#movieModeStatus').textContent = result.count + ' movies assigned to calendar doors.';
+            page.querySelector("#btnClearMovieTag").addEventListener("click", function () {
+                page.querySelector("#selMovieTag").value = "";
+                setMovieModeStatus("Movie tag selection cleared. Click Save to apply.");
+            });
+            page.querySelector("#selMovieSourceType").addEventListener("change", function () {
+                toggleMovieMode();
+                setMovieModeStatus("Choose the required source fields, then click Save to assign movies.");
+            });
+            page.querySelector("#btnReshuffleMovies").addEventListener("click", async function () {
+                try {
+                    const config = await ApiClient.getPluginConfiguration(getPluginId());
+                    if (!page.querySelector("#chkMovieModeEnabled").checked) {
+                        setMovieModeStatus("Enable Movie Mode before reshuffling movies.", true);
+                        return;
+                    }
+
+                    if (hasUnsavedMovieSourceChanges(config)) {
+                        setMovieModeStatus("Save the selected Movie Mode source before reshuffling.", true);
+                        return;
+                    }
+
+                    await reshuffleMovies();
+                } catch (error) {
+                    setMovieModeStatus(error.message || "Could not reshuffle movies.", true);
+                }
             });
 
             seriesSearchInput.addEventListener('input', function () {
@@ -588,8 +665,7 @@
                         if (!response.ok) { throw new Error('Could not upload the background image.'); }
                     }
                     if (shouldReshuffleMovies) {
-                        const result = await postJson("/adventcalendar/admin/movies/reshuffle");
-                        page.querySelector("#movieModeStatus").textContent = result.count + " movies assigned to calendar doors.";
+                        await reshuffleMovies();
                     }
                     Dashboard.processPluginConfigurationUpdateResult();
                 } catch (error) {

@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.5.5.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.5.0/jellyfin-plugin-advent-calendar_1.5.5.0.zip",
+        "checksum": "6e3698d88b4ad44b99173934a6aee83a",
+        "timestamp": "2026-09-08T21:27:11Z",
+        "changelog": "Add combined Movie library and tag source filtering, clear saved-assignment status, actionable reshuffle feedback, and protection against reshuffling unsaved source selections."
+      },
+      {
         "version": "1.5.4.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.4.0/jellyfin-plugin-advent-calendar_1.5.4.0.zip",
