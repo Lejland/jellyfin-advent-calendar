@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.5.1 - 2026-09-09
+
+Fixed:
+
+- move Movie library and Movie tag clear buttons beside their dropdowns so they no longer overlap Jellyfin's native select arrow
+
+
 ## 1.5.5.0 - 2026-09-08
 
 Added and improved:

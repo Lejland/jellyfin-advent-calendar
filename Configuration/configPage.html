@@ -19,24 +19,23 @@
         }
 
         #AdventCalendarConfigPage .advent-select-with-clear {
-            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         #AdventCalendarConfigPage .advent-select-with-clear select {
-            width: 100%;
-            padding-right: 2.8rem;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         #AdventCalendarConfigPage .advent-select-clear {
-            position: absolute;
-            top: 50%;
-            right: 0.45rem;
             width: 1.65rem;
             height: 1.65rem;
+            flex: 0 0 1.65rem;
             min-width: 1.65rem;
             margin: 0;
             padding: 0;
-            transform: translateY(-50%);
             border: 0;
             border-radius: 50%;
             background: #c62828;

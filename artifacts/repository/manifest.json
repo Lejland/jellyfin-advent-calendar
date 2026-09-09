@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.5.5.1",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.5.1/jellyfin-plugin-advent-calendar_1.5.5.1.zip",
+        "checksum": "7a2416e0a5d5c4ba3e41b518e2e70cc1",
+        "timestamp": "2026-09-09T07:53:33Z",
+        "changelog": "Fix the Movie Mode selector clear-button layout so the native dropdown arrow remains unobstructed."
+      },
+      {
         "version": "1.5.5.0",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.5.0/jellyfin-plugin-advent-calendar_1.5.5.0.zip",
