@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0.0 - 2026-09-14
+
+Added and improved:
+
+- add Die Hard Mode, which searches all Jellyfin movies for titles containing `Die Hard`, saves a shuffled marathon order, and repeats matching films across the configured doors
+- show a Jellyfin admin alert when no Die Hard movies are available and a playful full-page cancellation notice when a user tries to open a door
+- keep global door-count and opening-date controls visible in both Series Mode and Movie Mode
+- place Movie Mode reshuffle and assignment status beside Save for a clearer configuration flow
+
+
 ## 1.5.6.0 - 2026-09-14
 
 Added:

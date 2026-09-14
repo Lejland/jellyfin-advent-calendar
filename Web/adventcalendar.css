@@ -82,6 +82,20 @@ body {
     backdrop-filter: blur(10px);
 }
 
+.calendar-notice.is-full-page {
+    width: min(100%, 70rem);
+    min-height: calc(100vh - 2rem);
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    padding: clamp(2rem, 8vw, 7rem);
+    text-align: center;
+    background: radial-gradient(circle at center, rgba(214, 154, 41, 0.2), transparent 42%), rgba(8, 12, 18, 0.88);
+}
+
+.calendar-notice.is-full-page .calendar-notice__title { font-size: clamp(2.2rem, 6vw, 5rem); }
+.calendar-notice.is-full-page .calendar-notice__message { max-width: 34rem; font-size: clamp(1.1rem, 2vw, 1.45rem); }
+
 .calendar-notice__title,
 .calendar-notice__message {
     margin: 0;

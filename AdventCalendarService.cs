@@ -13,6 +13,7 @@ namespace Jellyfin.Plugin.AdventCalendar;
 
 public sealed class AdventCalendarService
 {
+    private const string DieHardUnavailableMessage = "No Die Hard movies found. Christmas is cancelled.";
     private static readonly Regex GuidTokenRegex = new(@"[0-9a-fA-F]{32}|[0-9a-fA-F\-]{36}", RegexOptions.Compiled);
     private readonly ILibraryManager _libraryManager;
     private readonly ILogger<AdventCalendarService> _logger;
@@ -168,6 +169,11 @@ public sealed class AdventCalendarService
             return CreateUnavailableDoor(doorNumber, true, resolvedCalendar.Message);
         }
 
+        if (config.DieHardModeEnabled && resolvedCalendar.EpisodesByDoor.Count == 0)
+        {
+            return CreateUnavailableDoor(doorNumber, true, DieHardUnavailableMessage);
+        }
+
         if (!resolvedCalendar.EpisodesByDoor.TryGetValue(doorNumber, out var episode))
         {
             return CreateUnavailableDoor(doorNumber, true, BuildMissingEpisodeMessage(config, doorNumber));
@@ -268,14 +274,16 @@ public sealed class AdventCalendarService
         IReadOnlyDictionary<int, BaseItem> episodesByDoor,
         string pathBase)
     {
-        var effectiveMissingEpisodeBehavior = GetEffectiveMissingEpisodeBehavior(Plugin.Instance.Configuration);
+        var config = Plugin.Instance.Configuration;
+        var effectiveMissingEpisodeBehavior = GetEffectiveMissingEpisodeBehavior(config);
+        var isDieHardUnavailable = config.DieHardModeEnabled && episodesByDoor.Count == 0;
         var doors = new List<AdventCalendarDoorDto>(doorCount);
         for (var doorNumber = 1; doorNumber <= doorCount; doorNumber++)
         {
             var isUnlocked = doorNumber <= unlockedDoorCount;
             var isOpened = openedDoors.Contains(doorNumber);
             var hasEpisode = episodesByDoor.TryGetValue(doorNumber, out var episode);
-            var isAvailable = isUnlocked && (hasEpisode || ConfigAllowsMessageOnly(effectiveMissingEpisodeBehavior));
+            var isAvailable = isUnlocked && (hasEpisode || ConfigAllowsMessageOnly(effectiveMissingEpisodeBehavior) || isDieHardUnavailable);
 
             doors.Add(new AdventCalendarDoorDto
             {
@@ -291,7 +299,7 @@ public sealed class AdventCalendarService
                 DetailsUrl = hasEpisode ? BuildDetailsUrl(pathBase, episode!) : string.Empty,
                 ThumbnailUrl = hasEpisode && isOpened ? BuildThumbnailUrl(pathBase, episode!) : string.Empty,
                 BackdropUrl = hasEpisode ? BuildItemBackdropUrl(pathBase, episode!) : string.Empty,
-                Message = BuildDoorMessage(doorNumber, isUnlocked, isOpened, hasEpisode, Plugin.Instance.Configuration)
+                Message = isDieHardUnavailable ? DieHardUnavailableMessage : BuildDoorMessage(doorNumber, isUnlocked, isOpened, hasEpisode, config)
             });
         }
 
@@ -392,10 +400,11 @@ public sealed class AdventCalendarService
     public int ReshuffleMovies()
     {
         var config = Plugin.Instance.Configuration;
-        var movies = GetConfiguredMovies(config).OrderBy(_ => Random.Shared.Next()).ToList();
-        config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(movies.Select(movie => movie.Id.ToString("N")).ToArray());
+        var movies = GetConfiguredMovies(config);
+        var assignments = config.DieHardModeEnabled ? BuildDieHardAssignments(movies, Math.Clamp(config.DoorCount, 1, 31)) : movies.OrderBy(_ => Random.Shared.Next()).ToList();
+        config.MovieDoorAssignmentsJson = JsonSerializer.Serialize(assignments.Select(movie => movie.Id.ToString("N")).ToArray());
         Plugin.Instance.SaveConfiguration();
-        return movies.Count;
+        return assignments.Count;
     }
 
     private ResolvedCalendar ResolveMovieCalendar(PluginConfiguration config, int doorCount, string pathBase)
@@ -403,6 +412,7 @@ public sealed class AdventCalendarService
         var ids = DeserializeMovieAssignments(config.MovieDoorAssignmentsJson);
         if (ids.Count == 0)
         {
+            if (config.DieHardModeEnabled) { return new ResolvedCalendar { IsConfigured = true, SeriesTitle = "Die Hard Calendar", SeasonLabel = "Die Hard Mode" }; }
             return new ResolvedCalendar { IsConfigured = false, SeriesTitle = "Movie Calendar", SeasonLabel = "Movie Mode", Message = "Save Movie Mode or use Reshuffle movies to assign the selected movies to doors." };
         }
 
@@ -421,6 +431,8 @@ public sealed class AdventCalendarService
     private IReadOnlyList<BaseItem> GetConfiguredMovies(PluginConfiguration config)
     {
         var movies = GetAllMovies();
+        if (config.DieHardModeEnabled) { return GetDieHardMovies(movies); }
+
         var sourceType = config.MovieSourceType ?? string.Empty;
         var usesTag = string.Equals(sourceType, "tag", StringComparison.OrdinalIgnoreCase)
             || string.Equals(sourceType, "libraryTag", StringComparison.OrdinalIgnoreCase);
@@ -461,6 +473,18 @@ public sealed class AdventCalendarService
         }
 
         return movies;
+    }
+
+    public int GetDieHardMovieCount() => GetDieHardMovies(GetAllMovies()).Count;
+
+    private static IReadOnlyList<BaseItem> GetDieHardMovies(IReadOnlyList<BaseItem> movies) => movies.Where(movie => movie.Name.Contains("Die Hard", StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private static IReadOnlyList<BaseItem> BuildDieHardAssignments(IReadOnlyList<BaseItem> movies, int doorCount)
+    {
+        if (movies.Count == 0) { return []; }
+        var assignments = new List<BaseItem>(doorCount);
+        while (assignments.Count < doorCount) { assignments.AddRange(movies.OrderBy(_ => Random.Shared.Next()).Take(doorCount - assignments.Count)); }
+        return assignments;
     }
 
     private IReadOnlyList<BaseItem> GetAllMovies()

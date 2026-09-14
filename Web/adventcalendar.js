@@ -2,6 +2,7 @@
     const eyebrowEl = document.getElementById('calendarEyebrow');
     const titleEl = document.getElementById('calendarTitle');
     const seriesEl = document.getElementById('calendarSeries');
+    const heroEl = document.querySelector('.calendar-hero');
     const noticeEl = document.getElementById('calendarNotice');
     const noticeTitleEl = document.getElementById('calendarNoticeTitle');
     const noticeMessageEl = document.getElementById('calendarNoticeMessage');
@@ -522,14 +523,18 @@
         messageEl.classList.remove('is-hidden');
     }
 
-    function setNotice(title, message) {
+    function setNotice(title, message, fullPage) {
         noticeTitleEl.textContent = title;
         noticeMessageEl.textContent = message;
+        noticeEl.classList.toggle("is-full-page", fullPage === true);
+        heroEl.classList.toggle('is-hidden', fullPage === true);
         noticeEl.classList.remove('is-hidden');
     }
 
     function clearNotice() {
         noticeEl.classList.add('is-hidden');
+        noticeEl.classList.remove("is-full-page");
+        heroEl.classList.remove('is-hidden');
     }
 
     function buildClosedMeta(door) {
@@ -653,6 +658,11 @@
                 try {
                     const resolvedDoor = normalizeDoor(await fetchJson(adventBasePath + '/door/' + door.doorNumber, state.__accessToken));
                     if (!resolvedDoor.isAvailable) {
+                        if (resolvedDoor.message === "No Die Hard movies found. Christmas is cancelled.") {
+                            doorsEl.classList.add("is-hidden");
+                            setNotice("Yippee Ki-Yay... Maybe Next Year.", resolvedDoor.message, true);
+                            return;
+                        }
                         node.classList.add('is-missing');
                         metaEl.textContent = resolvedDoor.message || 'No episode is available for this door.';
                         return;

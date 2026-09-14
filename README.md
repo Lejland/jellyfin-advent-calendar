@@ -38,18 +38,18 @@ A short walkthrough of opening Movie Mode doors and updating the calendar backdr
 - Supports optional username allowlisting
 - Shows a friendly message when a visitor is not signed in
 - Includes an admin reset to clear remembered opened doors for all users
-- Includes Movie Mode: select a movie library, tag, or studio, assign a saved random order, and reveal a movie behind each door
+- Includes Movie Mode: select a movie library, tag, studio, or Die Hard Mode, assign a saved random order, and reveal a movie behind each door
 - Supports one optional custom calendar background that overrides automatic series or Movie Mode backdrops
 
 ## Current Status
 
-- Current release: `1.5.6.0`
+- Current release: `1.6.0.0`
 - Tested against Jellyfin `10.11.11` and stable Jellyfin `12.0`
 
 
 ## Jellyfin 12 Compatibility
 
-Advent Calendar `1.5.6.0` has been confirmed working on stable Jellyfin `12.0`. The normal repository package still targets Jellyfin `10.11.x`; use the [Jellyfin 12 tested build](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.5.6.0-jellyfin12-beta) for manual Jellyfin 12 installation until a dedicated Jellyfin 12 repository manifest is published.
+Advent Calendar `1.6.0.0` has been confirmed working on stable Jellyfin `12.0`. The normal repository package still targets Jellyfin `10.11.x`; use the [Jellyfin 12 tested build](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.6.0.0-jellyfin12-beta) for manual Jellyfin 12 installation until a dedicated Jellyfin 12 repository manifest is published.
 
 ## Quick Configuration
 

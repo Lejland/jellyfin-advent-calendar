@@ -62,6 +62,12 @@
             background: rgba(198, 40, 40, 0.1);
             color: #f0a0a0;
         }
+
+        #AdventCalendarConfigPage .advent-movie-status.is-warning {
+            border-left-color: #d69a29;
+            background: rgba(214, 154, 41, 0.12);
+            color: #ffd58a;
+        }
     </style>
     <div data-role="content">
         <div class="content-primary">
@@ -114,9 +120,13 @@
                                 <button id="btnClearMovieStudio" type="button" class="advent-select-clear" title="Clear movie studio selection" aria-label="Clear movie studio selection">&times;</button>
                             </div>
                         </div>
-                        <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
-                        <div id="movieModeStatus" class="fieldDescription advent-movie-status" role="status" aria-live="polite"></div>
-                        <div class="fieldDescription">Save source changes first. Reshuffle keeps the selected source and creates a new door order.</div>
+                        <div class="inputContainer">
+                            <label class="checkboxContainer">
+                                <input id="chkDieHardModeEnabled" is="emby-checkbox" type="checkbox" />
+                                <span>Enable Die Hard Mode</span>
+                            </label>
+                            <div class="fieldDescription">Fills every door with a shuffled Die Hard marathon. It searches all Jellyfin movies and ignores the normal Movie source selection.</div>
+                        </div>
                     </div>
                     <div id="seriesModeSettings">
                     <div class="inputContainer">
@@ -129,6 +139,8 @@
                         <label class="inputLabel inputLabelUnfocused" for="txtSeasonNumbers">Season numbers</label>
                         <input id="txtSeasonNumbers" is="emby-input" placeholder="1 or 1,2" />
                         <div class="fieldDescription">Optional. Leave blank to use season 1. Multiple seasons continue the calendar in order, so door 13 can become season 2 episode 1.</div>
+                    </div>
+                    <div id="seriesSelectionStatus" class="fieldDescription"></div>
                     </div>
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="selFirstDoorMonth">Door 1 opens every year on</label>
@@ -153,8 +165,6 @@
                         <label class="inputLabel inputLabelUnfocused" for="txtDoorCount">Doors</label>
                         <input id="txtDoorCount" is="emby-input" type="number" min="1" max="31" />
                     </div>
-                    <div id="seriesSelectionStatus" class="fieldDescription"></div>
-                    </div>
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtMissingEpisodeMessage">Custom missing episode message</label>
                         <input id="txtMissingEpisodeMessage" is="emby-input" placeholder="Episode {door} is not available yet." />
@@ -173,6 +183,11 @@
                         <input id="chkDebugUnlockAllDoors" is="emby-checkbox" type="checkbox" />
                         <span>Debug mode: unlock all doors</span>
                     </label>
+                    <div id="movieModeActions" class="is-hidden" style="margin-top: 1rem;">
+                        <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
+                        <div id="movieModeStatus" class="fieldDescription advent-movie-status" role="status" aria-live="polite"></div>
+                        <div class="fieldDescription">Save source changes first. Reshuffle keeps the selected source and creates a new door order.</div>
+                    </div>
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block">
                             <span>Save</span>
@@ -211,15 +226,17 @@
                 const sourceType = page.querySelector("#selMovieSourceType").value;
                 page.querySelector("#movieModeSettings").classList.toggle("is-hidden", !enabled);
                 page.querySelector("#seriesModeSettings").classList.toggle("is-hidden", enabled);
+                page.querySelector("#movieModeActions").classList.toggle("is-hidden", !enabled);
                 page.querySelector("#movieLibraryContainer").classList.toggle("is-hidden", sourceType !== "library" && sourceType !== "libraryTag");
                 page.querySelector("#movieTagContainer").classList.toggle("is-hidden", sourceType !== "tag" && sourceType !== "libraryTag");
                 page.querySelector("#movieStudioContainer").classList.toggle("is-hidden", sourceType !== "studio");
             }
 
-            function setMovieModeStatus(text, isError) {
+            function setMovieModeStatus(text, state) {
                 const status = page.querySelector("#movieModeStatus");
                 status.textContent = text || "";
-                status.classList.toggle("is-error", isError === true);
+                status.classList.toggle("is-error", state === true || state === "error");
+                status.classList.toggle("is-warning", state === "warning");
             }
 
             function getMovieAssignmentCount(config) {
@@ -233,6 +250,11 @@
 
             function showSavedMovieModeStatus(config) {
                 const count = getMovieAssignmentCount(config);
+                if (count === 0 && getConfigValue(config, "dieHardModeEnabled", "DieHardModeEnabled", false)) {
+                    setMovieModeStatus("No Die Hard movies found. Christmas is cancelled.", "warning");
+                    return;
+                }
+
                 setMovieModeStatus(count > 0
                     ? count + " movies assigned to calendar doors. Use Reshuffle movies to create a new order."
                     : "No movies are assigned yet. Choose a source, click Save, then use Reshuffle movies when you want a new order.");
@@ -242,7 +264,8 @@
                 return getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== page.querySelector("#selMovieSourceType").value
                     || getConfigValue(config, "movieLibraryId", "MovieLibraryId", "") !== page.querySelector("#selMovieLibrary").value
                     || getConfigValue(config, "movieTag", "MovieTag", "") !== page.querySelector("#selMovieTag").value
-                    || getConfigValue(config, "movieStudio", "MovieStudio", "") !== page.querySelector("#selMovieStudio").value;
+                    || getConfigValue(config, "movieStudio", "MovieStudio", "") !== page.querySelector("#selMovieStudio").value
+                    || getConfigValue(config, "dieHardModeEnabled", "DieHardModeEnabled", false) !== page.querySelector("#chkDieHardModeEnabled").checked;
             }
 
             async function reshuffleMovies() {
@@ -253,7 +276,9 @@
                     throw new Error("The server did not return the assigned movie count.");
                 }
 
-                setMovieModeStatus(count + " movies assigned to calendar doors.");
+                setMovieModeStatus(count === 0 && page.querySelector("#chkDieHardModeEnabled").checked
+                    ? "No Die Hard movies found. Christmas is cancelled."
+                    : count + " movies assigned to calendar doors.", count === 0 && page.querySelector("#chkDieHardModeEnabled").checked ? "warning" : undefined);
                 return count;
             }
 
@@ -532,6 +557,7 @@
                 customBackgroundImageData = getConfigValue(config, 'customBackgroundImageData', 'CustomBackgroundImageData', '');
                 page.querySelector('#customBackgroundStatus').textContent = customBackgroundImageData ? 'Custom background image is active.' : 'Automatic backgrounds are active.';
                 page.querySelector('#chkMovieModeEnabled').checked = getConfigValue(config, 'movieModeEnabled', 'MovieModeEnabled', false) === true;
+                page.querySelector('#chkDieHardModeEnabled').checked = getConfigValue(config, 'dieHardModeEnabled', 'DieHardModeEnabled', false) === true;
                 await loadMovieSources(config);
                 toggleMovieMode();
                 showSavedMovieModeStatus(config);
@@ -559,6 +585,19 @@
             page.querySelector("#chkMovieModeEnabled").addEventListener("change", function () {
                 toggleMovieMode();
                 setMovieModeStatus("Choose a source, then click Save to assign movies.");
+            });
+            page.querySelector("#chkDieHardModeEnabled").addEventListener("change", async function () {
+                if (!this.checked) { return; }
+                const response = await fetch(buildServerUrl("/adventcalendar/admin/movies/diehard-count"), { headers: authorizationHeaders() });
+                if (!response.ok) { throw new Error("Could not check the Die Hard movie count."); }
+                const result = await response.json();
+                if (!result.count) {
+                    setMovieModeStatus("No Die Hard movies found. Christmas is cancelled.", "warning");
+                    Dashboard.alert({
+                        title: "Advent Calendar",
+                        message: "No Die Hard movies found. Christmas is cancelled. Please check your library or tag."
+                    });
+                }
             });
             page.querySelector("#btnClearMovieLibrary").addEventListener("click", function () {
                 page.querySelector("#selMovieLibrary").value = "";
@@ -638,11 +677,14 @@
                     const selectedMovieLibraryId = page.querySelector("#selMovieLibrary").value;
                     const selectedMovieTag = page.querySelector("#selMovieTag").value;
                     const selectedMovieStudio = page.querySelector("#selMovieStudio").value;
+                    const dieHardModeEnabled = page.querySelector("#chkDieHardModeEnabled").checked;
                     const shouldReshuffleMovies = movieModeEnabled && (
                         !getConfigValue(config, "movieModeEnabled", "MovieModeEnabled", false) ||
                         getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== selectedMovieSourceType ||
                         getConfigValue(config, "movieLibraryId", "MovieLibraryId", "") !== selectedMovieLibraryId ||
-                        getConfigValue(config, "movieTag", "MovieTag", "") !== selectedMovieTag
+                        getConfigValue(config, "movieTag", "MovieTag", "") !== selectedMovieTag ||
+                        getConfigValue(config, "movieStudio", "MovieStudio", "") !== selectedMovieStudio ||
+                        getConfigValue(config, "dieHardModeEnabled", "DieHardModeEnabled", false) !== dieHardModeEnabled
                     );
 
                     config.PageTitle = page.querySelector('#txtPageTitle').value;
@@ -673,6 +715,7 @@
                     config.MovieLibraryId = selectedMovieLibraryId;
                     config.MovieTag = selectedMovieTag;
                     config.MovieStudio = selectedMovieStudio;
+                    config.DieHardModeEnabled = dieHardModeEnabled;
 
                     await ApiClient.updatePluginConfiguration(activePluginId, config);
                     const backgroundFile = page.querySelector('#fileCustomBackground').files[0];

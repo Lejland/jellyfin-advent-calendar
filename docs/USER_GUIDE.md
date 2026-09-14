@@ -44,6 +44,7 @@ Open **Dashboard** -> **Plugins** -> **Advent Calendar**. Save after changing se
 | Try to launch playback in fullscreen | Requests fullscreen when an episode begins. |
 | Debug mode: unlock all doors | Opens every door for testing. Disable it for normal use. |
 | Enable Movie Mode | Uses movies instead of series episodes. When enabled, series and season fields are optional. |
+| Enable Die Hard Mode | Searches all Jellyfin movies for titles containing `Die Hard`, ignoring the normal Movie source selection. Matching films are shuffled and repeated across the configured doors. |
 | Movie source | Select a Jellyfin movie library, tag, studio, or a movie library and tag together. |
 | Reshuffle movies | Saves a new random movie order. The order stays fixed until this button is used again or the Movie Mode source changes. |
 | Custom calendar background | Optional PNG, JPEG, or WebP image up to 2 MB. It overrides automatic backdrops in both modes until removed. |
@@ -55,6 +56,10 @@ The green **Open advent calendar page** button opens the public page. The red **
 Enable **Movie Mode**, choose a movie library, tag, studio, or movie library and tag, and save the configuration. The plugin resolves the matching movies, shuffles them once, and saves that order for every user. Unopened doors use the mystery-movie artwork. When a user opens a door, they see that movie’s primary image and, without a custom calendar background, their page switches to the most recently opened movie’s backdrop.
 
 Use **Reshuffle movies** only when you intentionally want a new movie order. If fewer movies exist than doors, remaining doors show the configured missing-content message.
+
+### Die Hard Mode
+
+Enable **Die Hard Mode** while Movie Mode is enabled to create a Die Hard marathon calendar. The plugin searches all Jellyfin movies for titles containing `Die Hard`, ignoring the normal Movie source selection. It shuffles matching films and repeats that shuffled set until every configured door has a movie. If none are found, administrators see an alert and users who try to open a door see `No Die Hard movies found. Christmas is cancelled.`
 
 ## Custom Background
 

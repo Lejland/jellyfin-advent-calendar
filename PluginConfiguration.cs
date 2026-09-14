@@ -32,6 +32,8 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public string MovieStudio { get; set; } = string.Empty;
 
+    public bool DieHardModeEnabled { get; set; }
+
     public string MovieDoorAssignmentsJson { get; set; } = string.Empty;
 
     public string LastOpenedMovieDoorByUserJson { get; set; } = string.Empty;

@@ -138,6 +138,13 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [Authorize(Policy = "RequiresElevation")]
+    [HttpGet("/adventcalendar/admin/movies/diehard-count")]
+    public IActionResult GetDieHardMovieCount()
+    {
+        return Ok(new { count = _service.GetDieHardMovieCount() });
+    }
+
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/movies/libraries")]
     public IActionResult GetMovieLibraries()
     {
