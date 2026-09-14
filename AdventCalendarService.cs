@@ -379,6 +379,16 @@ public sealed class AdventCalendarService
             .ToList();
     }
 
+    public IReadOnlyList<string> GetMovieStudios()
+    {
+        return GetAllMovies()
+            .SelectMany(movie => movie.Studios ?? [])
+            .Where(studio => !string.IsNullOrWhiteSpace(studio))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(studio => studio)
+            .ToList();
+    }
+
     public int ReshuffleMovies()
     {
         var config = Plugin.Instance.Configuration;
@@ -416,6 +426,7 @@ public sealed class AdventCalendarService
             || string.Equals(sourceType, "libraryTag", StringComparison.OrdinalIgnoreCase);
         var usesLibrary = string.Equals(sourceType, "library", StringComparison.OrdinalIgnoreCase)
             || string.Equals(sourceType, "libraryTag", StringComparison.OrdinalIgnoreCase);
+        var usesStudio = string.Equals(sourceType, "studio", StringComparison.OrdinalIgnoreCase);
 
         if (usesTag)
         {
@@ -436,6 +447,17 @@ public sealed class AdventCalendarService
             }
 
             movies = movies.Where(movie => movie.GetAncestorIds().Contains(libraryId)).ToList();
+        }
+
+        if (usesStudio)
+        {
+            var selectedStudio = (config.MovieStudio ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(selectedStudio))
+            {
+                return [];
+            }
+
+            movies = movies.Where(movie => movie.Studios?.Contains(selectedStudio, StringComparer.OrdinalIgnoreCase) == true).ToList();
         }
 
         return movies;

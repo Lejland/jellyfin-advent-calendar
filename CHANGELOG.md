@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.6.0 - 2026-09-14
+
+Added:
+
+- add Studio as a Movie Mode source, with a searchable Jellyfin-derived studio list and a compact clear control
+- retain the existing Movie library, Tag, and Movie library and tag source options
+
+
 ## 1.5.5.1 - 2026-09-09
 
 Fixed:

@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.5.6.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.6.0/jellyfin-plugin-advent-calendar_1.5.6.0.zip",
+        "checksum": "b39627cf1cfcfea72f95d33de0a3b23d",
+        "timestamp": "2026-09-14T10:19:12Z",
+        "changelog": "Add Studio as a Movie Mode source alongside Movie library, Tag, and Movie library and tag."
+      },
+      {
         "version": "1.5.5.1",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.5.5.1/jellyfin-plugin-advent-calendar_1.5.5.1.zip",

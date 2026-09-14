@@ -152,6 +152,13 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [Authorize(Policy = "RequiresElevation")]
+    [HttpGet("/adventcalendar/admin/movies/studios")]
+    public IActionResult GetMovieStudios()
+    {
+        return Ok(_service.GetMovieStudios());
+    }
+
+    [Authorize(Policy = "RequiresElevation")]
     [HttpGet("/adventcalendar/admin/series")]
     [Produces(MediaTypeNames.Application.Json)]
     public IActionResult SearchSeries([FromQuery] string? query)

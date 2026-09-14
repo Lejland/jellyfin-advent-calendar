@@ -30,6 +30,8 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public string MovieTag { get; set; } = string.Empty;
 
+    public string MovieStudio { get; set; } = string.Empty;
+
     public string MovieDoorAssignmentsJson { get; set; } = string.Empty;
 
     public string LastOpenedMovieDoorByUserJson { get; set; } = string.Empty;

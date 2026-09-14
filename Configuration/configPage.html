@@ -90,8 +90,8 @@
                         <h3>Movie Mode</h3>
                         <div class="inputContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieSourceType">Movie source</label>
-                            <select id="selMovieSourceType" is="emby-select"><option value="library">Movie library</option><option value="tag">Tag</option><option value="libraryTag">Movie library and tag</option></select>
-                            <div class="fieldDescription">Use a library, a tag across all movie libraries, or both together.</div>
+                            <select id="selMovieSourceType" is="emby-select"><option value="library">Movie library</option><option value="tag">Tag</option><option value="studio">Studio</option><option value="libraryTag">Movie library and tag</option></select>
+                            <div class="fieldDescription">Use a movie library, tag, studio, or a library and tag together.</div>
                         </div>
                         <div class="inputContainer" id="movieLibraryContainer">
                             <label class="inputLabel inputLabelUnfocused" for="selMovieLibrary">Movie library</label>
@@ -105,6 +105,13 @@
                             <div class="advent-select-with-clear">
                                 <select id="selMovieTag" is="emby-select"></select>
                                 <button id="btnClearMovieTag" type="button" class="advent-select-clear" title="Clear movie tag selection" aria-label="Clear movie tag selection">&times;</button>
+                            </div>
+                        </div>
+                        <div class="inputContainer is-hidden" id="movieStudioContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="selMovieStudio">Movie studio</label>
+                            <div class="advent-select-with-clear">
+                                <select id="selMovieStudio" is="emby-select"></select>
+                                <button id="btnClearMovieStudio" type="button" class="advent-select-clear" title="Clear movie studio selection" aria-label="Clear movie studio selection">&times;</button>
                             </div>
                         </div>
                         <button id="btnReshuffleMovies" is="emby-button" type="button" class="raised block">Reshuffle movies</button>
@@ -204,8 +211,9 @@
                 const sourceType = page.querySelector("#selMovieSourceType").value;
                 page.querySelector("#movieModeSettings").classList.toggle("is-hidden", !enabled);
                 page.querySelector("#seriesModeSettings").classList.toggle("is-hidden", enabled);
-                page.querySelector("#movieLibraryContainer").classList.toggle("is-hidden", sourceType === "tag");
-                page.querySelector("#movieTagContainer").classList.toggle("is-hidden", sourceType === "library");
+                page.querySelector("#movieLibraryContainer").classList.toggle("is-hidden", sourceType !== "library" && sourceType !== "libraryTag");
+                page.querySelector("#movieTagContainer").classList.toggle("is-hidden", sourceType !== "tag" && sourceType !== "libraryTag");
+                page.querySelector("#movieStudioContainer").classList.toggle("is-hidden", sourceType !== "studio");
             }
 
             function setMovieModeStatus(text, isError) {
@@ -233,7 +241,8 @@
             function hasUnsavedMovieSourceChanges(config) {
                 return getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== page.querySelector("#selMovieSourceType").value
                     || getConfigValue(config, "movieLibraryId", "MovieLibraryId", "") !== page.querySelector("#selMovieLibrary").value
-                    || getConfigValue(config, "movieTag", "MovieTag", "") !== page.querySelector("#selMovieTag").value;
+                    || getConfigValue(config, "movieTag", "MovieTag", "") !== page.querySelector("#selMovieTag").value
+                    || getConfigValue(config, "movieStudio", "MovieStudio", "") !== page.querySelector("#selMovieStudio").value;
             }
 
             async function reshuffleMovies() {
@@ -249,14 +258,17 @@
             }
 
             async function loadMovieSources(config) {
-                const [libraries, tags] = await Promise.all([fetchJson('/adventcalendar/admin/movies/libraries'), fetchJson('/adventcalendar/admin/movies/tags')]);
+                const [libraries, tags, studios] = await Promise.all([fetchJson('/adventcalendar/admin/movies/libraries'), fetchJson('/adventcalendar/admin/movies/tags'), fetchJson('/adventcalendar/admin/movies/studios')]);
                 const librarySelect = page.querySelector('#selMovieLibrary');
                 const tagSelect = page.querySelector('#selMovieTag');
+                const studioSelect = page.querySelector('#selMovieStudio');
                 librarySelect.innerHTML = '<option value="">No movie library selected</option>' + libraries.map(function (item) { return '<option value="' + item.id + '">' + item.name + '</option>'; }).join('');
                 tagSelect.innerHTML = '<option value="">No movie tag selected</option>' + tags.map(function (tag) { return '<option value="' + tag + '">' + tag + '</option>'; }).join('');
+                studioSelect.innerHTML = '<option value="">No movie studio selected</option>' + studios.map(function (studio) { return '<option value="' + studio + '">' + studio + '</option>'; }).join('');
                 page.querySelector('#selMovieSourceType').value = getConfigValue(config, 'movieSourceType', 'MovieSourceType', 'library');
                 librarySelect.value = getConfigValue(config, 'movieLibraryId', 'MovieLibraryId', '');
                 tagSelect.value = getConfigValue(config, 'movieTag', 'MovieTag', '');
+                studioSelect.value = getConfigValue(config, 'movieStudio', 'MovieStudio', '');
             }
 
             function getToken() {
@@ -556,6 +568,10 @@
                 page.querySelector("#selMovieTag").value = "";
                 setMovieModeStatus("Movie tag selection cleared. Click Save to apply.");
             });
+            page.querySelector("#btnClearMovieStudio").addEventListener("click", function () {
+                page.querySelector("#selMovieStudio").value = "";
+                setMovieModeStatus("Movie studio selection cleared. Click Save to apply.");
+            });
             page.querySelector("#selMovieSourceType").addEventListener("change", function () {
                 toggleMovieMode();
                 setMovieModeStatus("Choose the required source fields, then click Save to assign movies.");
@@ -621,6 +637,7 @@
                     const selectedMovieSourceType = page.querySelector("#selMovieSourceType").value;
                     const selectedMovieLibraryId = page.querySelector("#selMovieLibrary").value;
                     const selectedMovieTag = page.querySelector("#selMovieTag").value;
+                    const selectedMovieStudio = page.querySelector("#selMovieStudio").value;
                     const shouldReshuffleMovies = movieModeEnabled && (
                         !getConfigValue(config, "movieModeEnabled", "MovieModeEnabled", false) ||
                         getConfigValue(config, "movieSourceType", "MovieSourceType", "library") !== selectedMovieSourceType ||
@@ -655,6 +672,7 @@
                     config.MovieSourceType = selectedMovieSourceType;
                     config.MovieLibraryId = selectedMovieLibraryId;
                     config.MovieTag = selectedMovieTag;
+                    config.MovieStudio = selectedMovieStudio;
 
                     await ApiClient.updatePluginConfiguration(activePluginId, config);
                     const backgroundFile = page.querySelector('#fileCustomBackground').files[0];
