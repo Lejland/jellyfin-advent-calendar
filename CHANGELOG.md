@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0.1 - 2026-09-14
+
+Fixed:
+
+- restore the full-page no-Die-Hard notice by returning an explicit unavailable flag instead of relying on message text
+- version the calendar CSS and JavaScript asset URLs so Jellyfin clients receive updated frontend behavior after a plugin update
+
+
 ## 1.6.0.0 - 2026-09-14
 
 Added and improved:

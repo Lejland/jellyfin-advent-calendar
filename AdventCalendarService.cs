@@ -171,7 +171,7 @@ public sealed class AdventCalendarService
 
         if (config.DieHardModeEnabled && resolvedCalendar.EpisodesByDoor.Count == 0)
         {
-            return CreateUnavailableDoor(doorNumber, true, DieHardUnavailableMessage);
+            return CreateUnavailableDoor(doorNumber, true, DieHardUnavailableMessage, true);
         }
 
         if (!resolvedCalendar.EpisodesByDoor.TryGetValue(doorNumber, out var episode))
@@ -291,6 +291,7 @@ public sealed class AdventCalendarService
                 IsUnlocked = isUnlocked,
                 IsOpened = isOpened && isUnlocked && hasEpisode,
                 IsAvailable = isAvailable,
+                IsDieHardUnavailable = isDieHardUnavailable,
                 EpisodeId = hasEpisode ? episode!.Id.ToString("N") : string.Empty,
                 EpisodeTitle = hasEpisode && isOpened ? episode!.Name : $"Door {doorNumber}",
                 SeasonNumber = hasEpisode ? episode!.ParentIndexNumber : null,
@@ -773,7 +774,7 @@ public sealed class AdventCalendarService
         return allowedNames.Contains(currentUsername, StringComparer.OrdinalIgnoreCase);
     }
 
-    private static AdventCalendarDoorDto CreateUnavailableDoor(int doorNumber, bool isUnlocked, string message)
+    private static AdventCalendarDoorDto CreateUnavailableDoor(int doorNumber, bool isUnlocked, string message, bool isDieHardUnavailable = false)
     {
         return new AdventCalendarDoorDto
         {
@@ -781,6 +782,7 @@ public sealed class AdventCalendarService
             IsUnlocked = isUnlocked,
             IsOpened = false,
             IsAvailable = false,
+            IsDieHardUnavailable = isDieHardUnavailable,
             EpisodeTitle = $"Door {doorNumber}",
             Message = message
         };

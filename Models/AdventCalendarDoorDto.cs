@@ -10,6 +10,8 @@ public sealed class AdventCalendarDoorDto
 
     public bool IsAvailable { get; init; }
 
+    public bool IsDieHardUnavailable { get; init; }
+
     public bool RequiresResolution { get; init; } = true;
 
     public string EpisodeId { get; init; } = string.Empty;

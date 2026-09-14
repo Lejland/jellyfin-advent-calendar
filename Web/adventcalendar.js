@@ -122,6 +122,7 @@
             isUnlocked: valueOf(door, 'isUnlocked', 'IsUnlocked'),
             isOpened: valueOf(door, 'isOpened', 'IsOpened'),
             isAvailable: valueOf(door, 'isAvailable', 'IsAvailable'),
+            isDieHardUnavailable: valueOf(door, 'isDieHardUnavailable', 'IsDieHardUnavailable') === true,
             requiresResolution: valueOf(door, 'requiresResolution', 'RequiresResolution'),
             episodeId: valueOf(door, 'episodeId', 'EpisodeId') || '',
             episodeTitle: valueOf(door, 'episodeTitle', 'EpisodeTitle') || '',
@@ -658,7 +659,7 @@
                 try {
                     const resolvedDoor = normalizeDoor(await fetchJson(adventBasePath + '/door/' + door.doorNumber, state.__accessToken));
                     if (!resolvedDoor.isAvailable) {
-                        if (resolvedDoor.message === "No Die Hard movies found. Christmas is cancelled.") {
+                        if (resolvedDoor.isDieHardUnavailable) {
                             doorsEl.classList.add("is-hidden");
                             setNotice("Yippee Ki-Yay... Maybe Next Year.", resolvedDoor.message, true);
                             return;

@@ -2,7 +2,7 @@
 
 ## Title
 
-`Advent Calendar 1.6.0.0`
+`Advent Calendar 1.6.0.1`
 
 ## Release Notes
 
@@ -43,7 +43,7 @@ Advent Calendar is an unofficial Jellyfin plugin that turns TV episodes or selec
 
 Manual install:
 
-1. Download `jellyfin-plugin-advent-calendar_1.6.0.0.zip`
+1. Download `jellyfin-plugin-advent-calendar_1.6.0.1.zip`
 2. Extract into Jellyfin plugin folder:
    `.../plugins/AdventCalendar/`
 3. Restart Jellyfin
@@ -56,7 +56,7 @@ Third-party repository install:
 
 ### Files
 
-- `jellyfin-plugin-advent-calendar_1.6.0.0.zip`
+- `jellyfin-plugin-advent-calendar_1.6.0.1.zip`
 - `manifest.json`
 
 ### Checksum
