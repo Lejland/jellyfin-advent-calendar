@@ -44,12 +44,12 @@ A short walkthrough of opening Movie Mode doors and updating the calendar backdr
 ## Current Status
 
 - Current release: `1.5.6.0`
-- Tested against Jellyfin `10.11.11`
+- Tested against Jellyfin `10.11.11` and stable Jellyfin `12.0`
 
 
-## Jellyfin 12 Beta
+## Jellyfin 12 Compatibility
 
-A [Jellyfin 12 beta build](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.5.6.0-jellyfin12-beta) is available for manual testing. It passed the full functional test suite on Jellyfin `12.0.0`, but Jellyfin 12 itself is pre-release, so use it only on a test server. The normal repository package targets Jellyfin `10.11.x`.
+Advent Calendar `1.5.6.0` has been confirmed working on stable Jellyfin `12.0`. The normal repository package still targets Jellyfin `10.11.x`; use the [Jellyfin 12 tested build](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.5.6.0-jellyfin12-beta) for manual Jellyfin 12 installation until a dedicated Jellyfin 12 repository manifest is published.
 
 ## Quick Configuration
 
