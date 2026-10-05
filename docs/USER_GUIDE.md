@@ -71,6 +71,7 @@ Upload one PNG, JPEG, or WebP image up to 2 MB from the plugin configuration pag
 - With multiple seasons, the next season starts after the highest door used by the preceding season.
 - Opened doors are stored separately for each signed-in Jellyfin user.
 - Signed-out visitors see a friendly message. Opening a door requires signing in.
+- On phones, doors use a large single-column scroll layout and the current unlocked door is brought into view when the page loads. Tablets use a two-column scroll layout; desktop keeps the mosaic layout.
 
 ## Privacy And Access
 

@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.6.2.0",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.2.0/jellyfin-plugin-advent-calendar_1.6.2.0.zip",
+        "checksum": "717c9ebd8077755dabe08e6cd866b57e",
+        "timestamp": "2026-10-05T09:52:40Z",
+        "changelog": "Add a responsive scroll-first calendar layout for phone and tablet, focus today's door on phone load, preserve backdrop alignment while scrolling, and retain opened artwork after mobile orientation changes."
+      },
+      {
         "version": "1.6.0.1",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.0.1/jellyfin-plugin-advent-calendar_1.6.0.1.zip",

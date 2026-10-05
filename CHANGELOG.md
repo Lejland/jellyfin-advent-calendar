@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.2.0 - 2026-10-05
+
+Added and improved:
+
+- add a responsive scrolling calendar layout: one large door per row on phones and two columns on tablets, while desktop keeps the existing mosaic
+- automatically bring today's unlocked door into view once when the calendar loads on a phone
+- keep closed-door backdrop fragments aligned with the fixed page background while scrolling
+- retain opened-door artwork across mobile resize and orientation changes
+
+
 ## 1.6.0.1 - 2026-09-14
 
 Fixed:

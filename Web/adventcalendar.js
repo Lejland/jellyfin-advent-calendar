@@ -23,24 +23,29 @@
             maxTall: 4
         },
         tablet: {
-            columns: 6,
-            rows: 7,
-            height: 'min(74vh, 780px)',
-            maxLarge: 1,
-            maxWide: 4,
-            maxTall: 3
+            columns: 2,
+            rows: 16,
+            height: 'auto',
+            maxLarge: 0,
+            maxWide: 0,
+            maxTall: 0,
+            sequential: true
         },
         mobile: {
-            columns: 4,
-            rows: 9,
-            height: 'min(72vh, 860px)',
+            columns: 1,
+            rows: 31,
+            height: 'auto',
             maxLarge: 0,
-            maxWide: 3,
-            maxTall: 3
+            maxWide: 0,
+            maxTall: 0,
+            sequential: true
         }
     };
     let currentState = null;
     let resizeFrame = 0;
+    let scrollFrame = 0;
+    let closedDoorNodes = [];
+    let focusCurrentDoorOnMobile = true;
     let currentBackdropMetrics = null;
 
     function tryParseJson(value) {
@@ -421,6 +426,20 @@
     }
 
     function buildDoorPlacements(doors, state, config) {
+        if (config.sequential) {
+            const placements = new Map();
+            shuffleDoors(doors, state).forEach(function (door, index) {
+                placements.set(door.doorNumber, {
+                    column: (index % config.columns) + 1,
+                    row: Math.floor(index / config.columns) + 1,
+                    width: 1,
+                    height: 1,
+                    type: 'single'
+                });
+            });
+            return placements;
+        }
+
         const occupancy = createOccupancy(config.columns, config.rows);
         const placements = new Map();
         const counts = { large: 0, wide: 0, tall: 0 };
@@ -513,6 +532,12 @@
         node.style.backgroundRepeat = 'no-repeat, no-repeat';
     }
 
+    function refreshClosedDoorBackdrops() {
+        closedDoorNodes.forEach(function (node) {
+            applyClosedDoorBackdrop(node, false);
+        });
+    }
+
     function setStatusMessage(message) {
         if (!message) {
             messageEl.textContent = '';
@@ -598,10 +623,11 @@
         doorsEl.classList.remove('is-hidden');
         const config = getLayoutConfig();
         const placements = buildDoorPlacements(state.doors, state, config);
-        const closedDoorNodes = [];
+        closedDoorNodes = [];
+        let currentDoorNode = null;
 
         doorsEl.style.setProperty('--door-columns', String(config.columns));
-        doorsEl.style.setProperty('--door-rows', String(config.rows));
+        doorsEl.style.setProperty('--door-rows', String(config.sequential ? Math.ceil(state.doors.length / config.columns) : config.rows));
         doorsEl.style.setProperty('--door-height', config.height);
 
         shuffleDoors(state.doors, state).forEach(function (door) {
@@ -619,6 +645,10 @@
             node.style.gridColumn = String(placement.column) + ' / span ' + String(placement.width);
             node.style.gridRow = String(placement.row) + ' / span ' + String(placement.height);
             node.classList.add('is-closed');
+
+            if (door.doorNumber === state.unlockedDoorCount) {
+                currentDoorNode = node;
+            }
 
             if (!door.isUnlocked) {
                 node.classList.add('is-locked');
@@ -669,10 +699,10 @@
                         return;
                     }
 
+                    const stateDoor = state.doors.find(function (item) { return item.doorNumber === resolvedDoor.doorNumber; });
+                    if (stateDoor) { Object.assign(stateDoor, resolvedDoor); }
                     applyOpenedState(node, resolvedDoor, state.__accessToken);
                     if (state.movieModeEnabled && (state.backgroundImageUrl || '').indexOf('/adventcalendar/assets/custom-background') === -1) {
-                        const stateDoor = state.doors.find(function (item) { return item.doorNumber === resolvedDoor.doorNumber; });
-                        if (stateDoor) { Object.assign(stateDoor, resolvedDoor); }
                         const refreshedState = normalizeState(await fetchJson(adventBasePath + '/state', state.__accessToken));
                         state.movieModeBackdropOpened = refreshedState.movieModeBackdropOpened;
                         state.backgroundImageUrl = refreshedState.backgroundImageUrl;
@@ -691,9 +721,11 @@
         });
 
         window.requestAnimationFrame(function () {
-            closedDoorNodes.forEach(function (node) {
-                applyClosedDoorBackdrop(node, false);
-            });
+            refreshClosedDoorBackdrops();
+            if (focusCurrentDoorOnMobile && window.innerWidth <= 620 && currentDoorNode) {
+                focusCurrentDoorOnMobile = false;
+                currentDoorNode.scrollIntoView({ block: 'center' });
+            }
         });
     }
 
@@ -733,6 +765,15 @@
             closePlayback();
         }
     });
+
+    window.addEventListener('scroll', function () {
+        if (window.innerWidth > 980 || !currentBackdropMetrics) {
+            return;
+        }
+
+        window.cancelAnimationFrame(scrollFrame);
+        scrollFrame = window.requestAnimationFrame(refreshClosedDoorBackdrops);
+    }, { passive: true });
 
     window.addEventListener('resize', function () {
         if (!currentState || !currentState.isAuthenticated || !currentState.hasAccess) {
