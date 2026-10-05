@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.2.7 - 2026-10-05
+
+Fixed:
+
+- use Jellyfin adaptive HLS playback inside the calendar when a browser cannot decode the original video, including H.265 content
+- keep the calendar video overlay in place instead of redirecting to, or embedding, the full Jellyfin interface
+
+Added:
+
+- bundle `hls.js` 1.7.3 under its Apache-2.0 license for inline HLS playback in browsers without native HLS support
+
+
 ## 1.6.2.0 - 2026-10-05
 
 Added and improved:

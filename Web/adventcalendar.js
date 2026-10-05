@@ -46,6 +46,8 @@
     let scrollFrame = 0;
     let closedDoorNodes = [];
     let focusCurrentDoorOnMobile = true;
+    let hlsPlayer = null;
+    let playbackFallbackTimer = 0;
     let currentBackdropMetrics = null;
 
     function tryParseJson(value) {
@@ -134,6 +136,7 @@
             seasonNumber: valueOf(door, 'seasonNumber', 'SeasonNumber'),
             episodeNumber: valueOf(door, 'episodeNumber', 'EpisodeNumber'),
             playbackUrl: valueOf(door, 'playbackUrl', 'PlaybackUrl') || '',
+            compatibilityPlaybackUrl: valueOf(door, 'compatibilityPlaybackUrl', 'CompatibilityPlaybackUrl') || '',
             detailsUrl: valueOf(door, 'detailsUrl', 'DetailsUrl') || '',
             thumbnailUrl: valueOf(door, 'thumbnailUrl', 'ThumbnailUrl') || '',
             backdropUrl: valueOf(door, 'backdropUrl', 'BackdropUrl') || '',
@@ -729,26 +732,83 @@
         });
     }
 
-    async function playDoor(state, door) {
-        overlay.classList.remove('is-hidden');
-        player.src = door.playbackUrl + (state.__accessToken ? '&ApiKey=' + encodeURIComponent(state.__accessToken) : '');
+    function withPlaybackToken(url, state) {
+        return url + (state.__accessToken ? (url.includes('?') ? '&' : '?') + 'ApiKey=' + encodeURIComponent(state.__accessToken) : '');
+    }
 
-        try {
-            await player.play();
-            if (state.autoFullscreen && player.requestFullscreen) {
-                await player.requestFullscreen();
+    function clearPlaybackFallbackTimer() {
+        window.clearTimeout(playbackFallbackTimer);
+        playbackFallbackTimer = 0;
+    }
+
+    async function playDoor(state, door) {
+        let usingCompatibilityStream = false;
+
+        function recoverPlayback() {
+            if (!usingCompatibilityStream && door.compatibilityPlaybackUrl) {
+                usingCompatibilityStream = true;
+                clearPlaybackFallbackTimer();
+                setStatusMessage("Preparing a compatible video stream...");
+                startPlayback(door.compatibilityPlaybackUrl, true);
             }
-        } catch (error) {
-            if (door.detailsUrl) {
-                window.location.assign(door.detailsUrl);
+        }
+
+        async function startPlayback(url, useHls) {
+            clearPlaybackFallbackTimer();
+            player.onerror = recoverPlayback;
+            player.onplaying = function () {
+                // Some browsers play an unsupported video's audio track without raising an error.
+                // Only accept playback once the stream exposes real video dimensions.
+                window.setTimeout(function () {
+                    if (player.videoWidth > 0 && player.videoHeight > 0) {
+                        clearPlaybackFallbackTimer();
+                        setStatusMessage();
+                        if (state.autoFullscreen && player.requestFullscreen) {
+                            player.requestFullscreen().catch(function () {});
+                        }
+                        return;
+                    }
+
+                    recoverPlayback();
+                }, 250);
+            };
+            const playbackUrl = withPlaybackToken(url, state);
+            playbackFallbackTimer = window.setTimeout(recoverPlayback, 7000);
+
+            if (hlsPlayer) {
+                hlsPlayer.destroy();
+                hlsPlayer = null;
+            }
+
+            if (useHls && window.Hls && window.Hls.isSupported()) {
+                hlsPlayer = new window.Hls();
+                hlsPlayer.on(window.Hls.Events.MANIFEST_PARSED, function () { player.play().catch(recoverPlayback); });
+                hlsPlayer.on(window.Hls.Events.ERROR, function (event, data) { if (data.fatal) { recoverPlayback(); } });
+                hlsPlayer.loadSource(playbackUrl);
+                hlsPlayer.attachMedia(player);
                 return;
             }
 
-            throw error;
+            player.src = playbackUrl;
+            try {
+                await player.play();
+            } catch (error) {
+                recoverPlayback();
+            }
         }
+
+        overlay.classList.remove('is-hidden');
+        await startPlayback(door.playbackUrl, false);
     }
 
     function closePlayback() {
+        clearPlaybackFallbackTimer();
+        player.onerror = null;
+        player.onplaying = null;
+        if (hlsPlayer) {
+            hlsPlayer.destroy();
+            hlsPlayer = null;
+        }
         player.pause();
         player.removeAttribute('src');
         player.load();

@@ -100,6 +100,14 @@ public sealed class AdventCalendarController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("/adventcalendar/assets/hls.min.js")]
+    [Produces("application/javascript")]
+    public IActionResult GetHlsScript()
+    {
+        return Content(RenderEmbeddedResource("Web.vendor.hls.min.js"), "application/javascript");
+    }
+
+    [AllowAnonymous]
     [HttpGet("/adventcalendar/assets/adventcalendar.js")]
     [Produces("application/javascript")]
     public IActionResult GetCalendarScript()

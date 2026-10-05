@@ -43,13 +43,21 @@ A short walkthrough of opening Movie Mode doors and updating the calendar backdr
 
 ## Current Status
 
-- Current release: `1.6.2.0`
+- Current release: `1.6.2.7`
 - Tested against Jellyfin `10.11.11` and stable Jellyfin `12.0`
 
 
 ## Jellyfin 12 Compatibility
 
-Advent Calendar `1.6.2.0` has been confirmed working on Jellyfin `10.11.11` and stable Jellyfin `12.0`. The repository manifest targets Jellyfin `10.11.x`, but the same ZIP from the [normal release](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.6.2.0) is confirmed for manual installation on stable Jellyfin 12.
+Advent Calendar `1.6.2.7` has been confirmed working on Jellyfin `10.11.11` and stable Jellyfin `12.0`. The repository manifest targets Jellyfin `10.11.x`, but the same ZIP from the [normal release](https://github.com/Lejland/jellyfin-advent-calendar/releases/tag/v1.6.2.7) is confirmed for manual installation on stable Jellyfin 12.
+
+## Playback Compatibility
+
+Calendar doors first use direct playback. If a browser cannot decode the source, such as H.265/HEVC on some browsers, the plugin automatically switches the same overlay to Jellyfin adaptive HLS playback. Server video transcoding must be enabled for this fallback.
+
+## Third-Party Notices
+
+Inline HLS playback bundles [hls.js 1.7.3](https://github.com/video-dev/hls.js), licensed under Apache-2.0. See [its included license](licenses/hls.js-LICENSE).
 
 ## Quick Configuration
 

@@ -197,6 +197,7 @@ public sealed class AdventCalendarService
             SeasonNumber = episode.ParentIndexNumber,
             EpisodeNumber = episode.IndexNumber,
             PlaybackUrl = BuildPlaybackUrl(pathBase, episode),
+            CompatibilityPlaybackUrl = BuildCompatibilityPlaybackUrl(pathBase, episode),
             DetailsUrl = BuildDetailsUrl(pathBase, episode),
             ThumbnailUrl = BuildThumbnailUrl(pathBase, episode),
             BackdropUrl = BuildItemBackdropUrl(pathBase, episode)
@@ -297,6 +298,7 @@ public sealed class AdventCalendarService
                 SeasonNumber = hasEpisode ? episode!.ParentIndexNumber : null,
                 EpisodeNumber = hasEpisode ? episode!.IndexNumber : null,
                 PlaybackUrl = hasEpisode ? BuildPlaybackUrl(pathBase, episode!) : string.Empty,
+                CompatibilityPlaybackUrl = hasEpisode ? BuildCompatibilityPlaybackUrl(pathBase, episode!) : string.Empty,
                 DetailsUrl = hasEpisode ? BuildDetailsUrl(pathBase, episode!) : string.Empty,
                 ThumbnailUrl = hasEpisode && isOpened ? BuildThumbnailUrl(pathBase, episode!) : string.Empty,
                 BackdropUrl = hasEpisode ? BuildItemBackdropUrl(pathBase, episode!) : string.Empty,
@@ -826,6 +828,11 @@ public sealed class AdventCalendarService
     private static string BuildPlaybackUrl(string pathBase, BaseItem item)
     {
         return BuildRelativeUrl(pathBase, $"/Videos/{item.Id:N}/stream?static=true");
+    }
+
+    private static string BuildCompatibilityPlaybackUrl(string pathBase, BaseItem item)
+    {
+        return BuildRelativeUrl(pathBase, $"/Videos/{item.Id:N}/master.m3u8?mediaSourceId={item.Id:N}&videoCodec=h264&audioCodec=aac&audioStreamIndex=-1&transcodingMaxAudioChannels=2&segmentContainer=ts&minSegments=1&allowVideoStreamCopy=false&allowAudioStreamCopy=false");
     }
 
     private static string BuildDetailsUrl(string pathBase, BaseItem item)

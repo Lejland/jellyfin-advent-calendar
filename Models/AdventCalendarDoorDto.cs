@@ -24,6 +24,8 @@ public sealed class AdventCalendarDoorDto
 
     public string PlaybackUrl { get; init; } = string.Empty;
 
+    public string CompatibilityPlaybackUrl { get; init; } = string.Empty;
+
     public string DetailsUrl { get; init; } = string.Empty;
 
     public string ThumbnailUrl { get; init; } = string.Empty;
