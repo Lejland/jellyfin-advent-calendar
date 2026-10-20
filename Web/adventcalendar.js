@@ -506,6 +506,14 @@
     }
 
     function applyClosedDoorBackdrop(node, movieModeEnabled) {
+        if (window.innerWidth <= 980) {
+            node.style.removeProperty("background-image");
+            node.style.removeProperty("background-size");
+            node.style.removeProperty("background-position");
+            node.style.removeProperty("background-repeat");
+            return;
+        }
+
         if (movieModeEnabled && currentBackdropMetrics) {
             node.style.backgroundImage = 'linear-gradient(180deg, rgba(20, 15, 12, 0.25), rgba(8, 8, 12, 0.48)),url("' + currentBackdropMetrics.url + '")';
             node.style.backgroundSize = 'cover, cover';
@@ -536,6 +544,10 @@
     }
 
     function refreshClosedDoorBackdrops() {
+        if (window.innerWidth <= 980) {
+            return;
+        }
+
         closedDoorNodes.forEach(function (node) {
             applyClosedDoorBackdrop(node, false);
         });

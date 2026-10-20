@@ -302,6 +302,58 @@ body {
     right: 1rem;
 }
 
+@media (min-width: 981px) {
+    .page-shell {
+        padding: min(1rem, 1.2vh);
+    }
+
+    .calendar-layout {
+        width: min(94vw, 1120px, 104vh);
+        min-height: calc(100vh - 2rem);
+        gap: min(1rem, 1.2vh);
+        align-content: center;
+    }
+
+    .calendar-hero {
+        width: min(100%, 44rem, 66vh);
+        padding: min(1rem, 1.4vh) min(1.1rem, 1.6vh);
+    }
+
+    .calendar-title {
+        font-size: min(3.6rem, 5vh);
+    }
+
+    .calendar-series {
+        font-size: min(1.35rem, 2.2vh);
+    }
+
+    .doors {
+        width: min(100%, 1120px, 104vh);
+        height: min(var(--door-height), calc(100vh - 11rem));
+        gap: min(0.75rem, 1vh);
+    }
+
+    .door {
+        min-height: 0;
+    }
+
+    .door__day {
+        font-size: min(3.1rem, 5.5vh);
+    }
+
+    .door__meta {
+        font-size: min(0.88rem, 1.2vh);
+    }
+
+    .door__opened-title {
+        font-size: min(1rem, 1.4vh);
+    }
+
+    .door__opened-meta {
+        font-size: min(0.84rem, 1.15vh);
+    }
+}
+
 @media (max-width: 980px) {
     body {
         background-attachment: fixed;
@@ -314,6 +366,10 @@ body {
 
     .door {
         min-height: clamp(16rem, 42vw, 28rem);
+    }
+
+    .door.is-closed {
+        background: rgba(8, 12, 18, 0.34) !important;
     }
 }
 

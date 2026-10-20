@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.2.11 - 2026-10-20
+
+Improved:
+
+- keep the page background fixed while closed doors on phones and tablets use a subtle transparent tint instead of repeating cropped background fragments
+- make the desktop calendar scale fluidly with browser zoom while keeping the header and door mosaic proportionate and within the available viewport
+
+
 ## 1.6.2.7 - 2026-10-05
 
 Fixed:

@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.6.2.11",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.2.11/jellyfin-plugin-advent-calendar_1.6.2.11.zip",
+        "checksum": "4ff8c0565286dc32aee4a19e30a063f2",
+        "timestamp": "2026-10-20T14:34:41Z",
+        "changelog": "Improves mobile door transparency and fluid desktop scaling at browser zoom."
+      },
+      {
         "version": "1.6.2.7",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.2.7/jellyfin-plugin-advent-calendar_1.6.2.7.zip",
