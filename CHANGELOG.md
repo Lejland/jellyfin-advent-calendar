@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.2.12 - 2026-10-20
+
+Fixed:
+
+- render the phone and tablet background in a dedicated fixed layer, avoiding mobile Safari background disappearance and incorrect zoom while scrolling
+
+
 ## 1.6.2.11 - 2026-10-20
 
 Improved:

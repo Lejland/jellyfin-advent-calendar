@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Lejland/jellyfin-advent-calendar/main/assets/advent-calendar-social.png",
     "versions": [
       {
+        "version": "1.6.2.12",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.2.12/jellyfin-plugin-advent-calendar_1.6.2.12.zip",
+        "checksum": "0a29464bb34d4dfea2b9dd0309fd2668",
+        "timestamp": "2026-10-20T14:56:48Z",
+        "changelog": "Fixes the fixed calendar background on real phones and tablets, including mobile Safari."
+      },
+      {
         "version": "1.6.2.11",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lejland/jellyfin-advent-calendar/releases/download/v1.6.2.11/jellyfin-plugin-advent-calendar_1.6.2.11.zip",

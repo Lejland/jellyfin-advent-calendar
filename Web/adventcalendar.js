@@ -7,6 +7,7 @@
     const noticeTitleEl = document.getElementById('calendarNoticeTitle');
     const noticeMessageEl = document.getElementById('calendarNoticeMessage');
     const messageEl = document.getElementById('calendarMessage');
+    const pageShell = document.querySelector('.page-shell');
     const doorsEl = document.getElementById('doors');
     const template = document.getElementById('doorTemplate');
     const overlay = document.getElementById('playerOverlay');
@@ -185,6 +186,7 @@
         document.body.style.backgroundImage = layers.join(',');
         document.body.style.backgroundPosition = 'center center, center center, center center';
         document.body.style.backgroundSize = 'cover, cover, cover';
+        pageShell.style.setProperty('--calendar-background-image', layers.join(','));
     }
 
     function computeCoverMetrics(imageWidth, imageHeight, viewportWidth, viewportHeight) {
